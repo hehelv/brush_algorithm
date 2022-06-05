@@ -6,7 +6,7 @@
 
 
 
-#### 池塘奇数
+#### 池塘计数
 
 > 农夫约翰有一片 N∗MN的矩形土地。
 >
@@ -73,3 +73,82 @@
 >
 > 
 
+
+
+#### 城堡问题
+
+> ```go
+> package main
+> 
+> import "fmt"
+> 
+> type Pair struct {
+>     x, y int
+> }
+> 
+> const N int = 55
+> 
+> var g [N][N]int
+> var st [N][N]bool
+> 
+> var n,m int
+> 
+> func bfs(x,y int) int {
+>     st[x][y] = true
+>     q := make([]Pair, 0)
+>     q = append(q, Pair{x, y})
+>     
+>     dx, dy := [4]int{0,-1,0,1}, [4]int{-1,0,1,0}
+>     
+>     area := 0
+>     
+>     for len(q) != 0 {
+>         head := q[0]
+>         q = q[1:]
+>         area++
+>         
+>         for i := 0; i < 4; i++ {
+>             a, b := head.x + dx[i], head.y + dy[i]
+>             if a >= 0 && a < n && b >= 0 && b < m && st[a][b] == false && g[head.x][head.y]>>i & 1 == 0 {
+>                 q = append(q, Pair{a, b})
+>                 st[a][b] = true
+>             }
+>         }
+>     }
+>     
+>     return area
+> }
+> 
+> func main() {
+>     fmt.Scanf("%d %d", &n, &m)
+>     
+>     cnt, area := 0, 0
+>     
+>     for i := 0; i < n; i++ {
+>         for j := 0; j < m; j++ {
+>             fmt.Scanf("%d", &g[i][j])
+>         }
+>     }
+>     
+>     for i := 0; i < n; i++ {
+>         for j := 0; j < m; j++ {
+>             if st[i][j] == false {
+>                 area = max(area, bfs(i, j))
+>                 cnt++
+>             }
+>         }
+>     }
+>     
+>     fmt.Println(cnt)
+>     fmt.Println(area)
+> }
+> 
+> func max(a, b int) int {
+>     if a > b {
+>         return a
+>     }
+>     return b
+> }
+> ```
+>
+> 
