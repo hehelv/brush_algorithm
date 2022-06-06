@@ -151,4 +151,89 @@
 > }
 > ```
 >
+
+
+
+#### 山峰和山谷
+
+> https://www.acwing.com/problem/content/1108/
+>
+> ```go
+> package main
+> 
+> import "fmt"
+> 
+> type Pair struct {
+>     x,y int
+> }
+> 
+> const N int = 1010
+> var g [N][N]int
+> var st[N][N]bool
+> 
+> var n int
+> 
+> func bfs(x,y int, hasHigher,hasLower *bool) {
+>     q := make([]Pair, 0)
+>     q = append(q, Pair{x,y})
+>     st[x][y] = true
+>     
+>     for len(q) != 0 {
+>         head := q[0]
+>         q = q[1:]
+>         
+>         for i := head.x-1; i <= head.x+1; i++ {
+>             for j := head.y-1; j <= head.y+1; j++ {
+>                 if i == head.x && j == head.y {
+>                     continue
+>                 }
+>                 if i < 0 || i >= n || j < 0 || j >= n {
+>                     continue
+>                 }
+>                 if g[i][j] != g[head.x][head.y] {
+>                     //山脉的边界
+>                     if g[i][j] > g[head.x][head.y] {
+>                         *hasHigher = true
+>                     } else {
+>                         *hasLower = true   
+>                     }
+>                 } else if st[i][j] == false {
+>                     q = append(q, Pair{i,j})
+>                     st[i][j] = true
+>                 }
+>             }
+>         }
+>     }
+> }
+> 
+> func main() {
+>     fmt.Scanf("%d", &n)
+>     
+>     for i := 0; i < n; i++ {
+>         for j := 0; j < n; j++ {
+>             fmt.Scanf("%d", &g[i][j])
+>         }
+>     }
+>     
+>     valley, peak := 0, 0
+>     
+>     for i := 0; i < n; i++ {
+>         for j := 0; j < n; j++ {
+>             if !st[i][j] {
+>                 hasHigher, hasLower := false, false
+>                 bfs(i, j, &hasHigher, &hasLower)
+>                 if !hasHigher {
+>                     peak++
+>                 }
+>                 if !hasLower {
+>                     valley++
+>                 }
+>             }
+>         }
+>     }
+>     
+>     fmt.Printf("%d %d", peak, valley)
+> }
+> ```
+>
 > 
