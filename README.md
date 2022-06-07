@@ -18,4 +18,10 @@
 > 刷题：
 >
 > > [Flood Fill](https://github.com/hehelv/brush_algorithm/blob/main/%E6%90%9C%E7%B4%A2%EF%BC%88%E5%88%B7%E9%A2%98%EF%BC%89/Flood-Fill.md)
+> >
+> > [最短路模型](https://github.com/hehelv/brush_algorithm/blob/main/%E6%90%9C%E7%B4%A2%EF%BC%88%E5%88%B7%E9%A2%98%EF%BC%89/%E6%9C%80%E7%9F%AD%E8%B7%AF%E6%A8%A1%E5%9E%8B.md)
+> >
+> > [多源BFS](https://github.com/hehelv/brush_algorithm/blob/main/%E6%90%9C%E7%B4%A2%EF%BC%88%E5%88%B7%E9%A2%98%EF%BC%89/%E5%A4%9A%E6%BA%90BFS.md)
+> >
+> > [最小步数模型](https://github.com/hehelv/brush_algorithm/blob/main/%E6%90%9C%E7%B4%A2%EF%BC%88%E5%88%B7%E9%A2%98%EF%BC%89/%E6%9C%80%E5%B0%8F%E6%AD%A5%E6%95%B0%E6%A8%A1%E5%9E%8B.md)
 
