@@ -1,4 +1,5 @@
-//quick_sort
+* quick_sort
+```C++
 void quick_sort(int *a,int l,int r){
 	int i=l,j=r,mid=a[(l+r)>>1];
 	do{
@@ -9,8 +10,10 @@ void quick_sort(int *a,int l,int r){
 	if(l<j)quick_sort(a,l,j);
 	if(i<r)quick_sort(a,i,r);
 }
+```
 
-//merge_sort
+* merge_sort
+```C++
 int b[BUF_SIZE];
 void merge_sort(int *a,int l, int r){
 	if(l==r)return;
@@ -29,3 +32,4 @@ void merge_sort(int *a,int l, int r){
 	while(j<=r)b[k++]=a[j++];
 	for(k=l;k<=r;++k)a[k]=b[k];
 }
+```
