@@ -1,13 +1,13 @@
 * quick_sort
 ```C++
 void quick_sort(int *a,int l,int r){
-	int i=l,j=r,mid=a[(l+r)>>1];
-	do{
-		while(a[i]<mid)i++;
-		while(a[j]>mid)j--;
-		if(i<=j)swap(a[i++],a[j--]);
+	int i=l,j=r,mid=a[(l+r)>>1];//i j mid三标志
+	do{//do while 循环 i<j
+		while(a[i]<mid)i++; //while < i++
+		while(a[j]>mid)j--; //while > j--
+		if(i<=j)swap(a[i++],a[j--]); //<= swap 嵌套i++ j--
 	}while(i<j);
-	if(l<j)quick_sort(a,l,j);
+	if(l<j)quick_sort(a,l,j);//l j i r 再递归
 	if(i<r)quick_sort(a,i,r);
 }
 ```
