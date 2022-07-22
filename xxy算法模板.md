@@ -54,3 +54,15 @@ while(l<r){
 	else r = mid-1;
 }
 ```
+float_binary_search
+```c++
+bool check(double){...}
+//check将查找范围分成两个区间 如> while查找右区间的左端点
+
+double l,r,mid,eps=1e-7;
+while(r-l>eps){
+	mid = (l+r)/2;
+	if(check(mid))r=mid;
+	else l =mid;
+}
+```
