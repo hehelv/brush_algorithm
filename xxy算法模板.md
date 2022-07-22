@@ -66,3 +66,27 @@ while(r-l>eps){
 	else l =mid;
 }
 ```
+高精度加法 正整数+正整数
+```c++
+vector<int> add(vector<int>A,vector<int>B){
+	if(A.size()<B.size())return add(B,A);
+	vector<int> C;
+	int t=0;
+	for(int i=0;i<A.size();++i){
+		t+=A[i];
+		if(i<B.size())t+=B[i];
+		C.push_back(t%10);
+		t/=10;
+	}
+	if(t)C.push_back(t);
+	return C;
+}
+
+//输入预处理方法 倒序存储
+char s[BUF_SIZE];
+vector<int> A;
+cin>>s;
+int len = strlen(s);
+for(int i =len-1;i>=0;--i)
+	A.push_back(s[i]-'0');
+```
