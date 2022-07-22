@@ -33,3 +33,24 @@ void merge_sort(int *a,int l, int r){
 	for(k=l;k<=r;++k)a[k]=b[k];
 }
 ```
+binary_search_1
+```c++
+bool check(int){...};
+//check将查找范围分成两个区间，while循环查找右区间的左端点
+
+while(l<r){
+	mid = l+r>>1;
+	if(check(mid))r=mid;
+	else l = mid+1;
+}
+```
+binary_serach_2
+```c++
+bool check(int){...};
+//check将查找范围分成两个区间，while循环查找左区间的右端点
+while(l<r){
+	mid = l+r+1>>1;
+	if(check(mid))l=mid;
+	else r = mid-1;
+}
+```
