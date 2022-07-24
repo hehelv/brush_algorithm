@@ -149,3 +149,14 @@ for(int i=1;i<l=en;++i)
 for(int i=0;i<m;++i)
 	cin>>l>>r,cout<<s[r]-s[l-1];
 ```
+二维前缀和
+```c++
+//n乘m的矩阵 求出(x1,y1),(x2,y2)之间矩阵和
+int n,m,q,val,x1,y1,x2,y2,s[SIZE][SIZE];
+cin>>n>>m>>q;
+for(int i=1;i<=n;++i)
+	for(int j=1;j<=m;++j)
+		cin>>val,s[i][j]=s[i-1][j]+s[i][j-1]+val-s[i-1][j-1];
+for(int i=0;i<q;++i)
+	cin>>x1>>y1>>x2>>y2,cout<<s[x2][y2]-s[x1-1][y2]-s[x2][y1-1]+s[x1-1][y1-1]<<endl;
+```
