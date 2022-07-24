@@ -205,6 +205,11 @@ cout<<endl;
 得到a的第k位的值
 ```c++
 bool bit = a>>k&1;
+//获取n中二进制1的个数
+int count = 0;
+for(int i=0;i<32;++i)
+	if(n>>i&1)count++;
+cout<<count;
 ```
 lowbit:n的最后一位1，常用与树状数组
 ```c++
@@ -213,4 +218,12 @@ lowbit:n的最后一位1，常用与树状数组
 //lowbit(4)=4;
 //lowbit(8)=8;
 inline int lobit(int n ){return n&-n}
+//获取n二进制中1的个数,lowbit方法效率比位右移效率高
+int count =0;
+while(n){
+	int lowbit = n&-n;
+	n-=lowbit;
+	count++;
+}
+cout<<count;
 ```
