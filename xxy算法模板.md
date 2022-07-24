@@ -68,7 +68,7 @@ while(r-l>eps){
 ```
 高精度加法 正整数+正整数
 ```c++
-vector<int> add(vector<int>A,vector<int>B){
+vector<int> add(vector<int>&A,vector<int>&B){
 	if(A.size()<B.size())return add(B,A);
 	vector<int> C;
 	int t=0;
@@ -93,7 +93,7 @@ for(int i =len-1;i>=0;--i)
 高精度减法
 ```c++
 //A>=B>=0
-vector<int> sub(vector<int>A,vector<int>B){
+vector<int> sub(vector<int>&A,vector<int>&B){
 	vector<int>C;
 	for(int t=0,i=0;i<A.size();++i){
 		t = A[i]-t;
@@ -110,7 +110,7 @@ vector<int> sub(vector<int>A,vector<int>B){
 高精度乘法
 ```c++
 //满足A>=0,b>=0
-vector<int> mul(vector<int> A,int b){
+vector<int> mul(vector<int> &A,int b){
 	vector<int> C;
 	for(int i=0,t=0;i<A.size()||t;++i){
 		if(i<A.size())t+=A[i]*b;
