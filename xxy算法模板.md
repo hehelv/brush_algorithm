@@ -161,5 +161,17 @@ for(int i=0;i<q;++i)
 	cin>>x1>>y1>>x2>>y2,cout<<s[x2][y2]-s[x1-1][y2]-s[x2][y1-1]+s[x1-1][y1-1]<<endl;
 ```
 一维差分：区间修改
-
+```c++
+//进行区间修改时（区间同时增加和同时减少一个值）
+//在差分情况下，只有左右端点会发生影响，从O(len)降低为O(2)，d[l+=val],d[r+1]-=val
+int d[SIZE];
+int n,m,val,l,r,pre=0;
+cin>>n>>m;
+for(int i=1;i<=n;++i)
+cin>>val,d[i]=val-pre,pre=val;
+for(int i=0;i<m;++i)
+cin>>l>>r>>val,d[l]+=val,d[r+1]-=val;
+for(int i=1;i<=n;++i)
+d[i]+=d[i-1],cout<<d[i]<<" ";
+```
 二维差分：区间修改
