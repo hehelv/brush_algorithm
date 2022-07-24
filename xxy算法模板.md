@@ -202,3 +202,15 @@ for(int j=1;j<=m;++j)
 cout<<endl;
 }
 ```
+得到a的第k位的值
+```c++
+bool bit = a>>k&1;
+```
+lowbit:n的最后一位1，常用与树状数组
+```c++
+//lowbit(3)=1
+//lowbit(2)=2;
+//lowbit(4)=4;
+//lowbit(8)=8;
+inline int lobit(int n ){return n&-n}
+```
