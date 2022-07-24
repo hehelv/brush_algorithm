@@ -139,7 +139,7 @@ vector<int> div(vector<int>&A,int b,int &r){
 	return C;
 }
 ```
-前缀和
+前缀和：用于无修改的区间查询
 ```c++
 //前缀和均从下标1开始
 int a[SIZE],s[SIZE];
@@ -149,7 +149,7 @@ for(int i=1;i<l=en;++i)
 for(int i=0;i<m;++i)
 	cin>>l>>r,cout<<s[r]-s[l-1];
 ```
-二维前缀和
+二维前缀和：用于无修改的区间查询
 ```c++
 //n乘m的矩阵 求出(x1,y1),(x2,y2)之间矩阵和
 int n,m,q,val,x1,y1,x2,y2,s[SIZE][SIZE];
@@ -160,3 +160,6 @@ for(int i=1;i<=n;++i)
 for(int i=0;i<q;++i)
 	cin>>x1>>y1>>x2>>y2,cout<<s[x2][y2]-s[x1-1][y2]-s[x2][y1-1]+s[x1-1][y1-1]<<endl;
 ```
+一维差分：区间修改
+
+二维差分：区间修改
