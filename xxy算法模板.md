@@ -177,5 +177,12 @@ d[i]+=d[i-1],cout<<d[i]<<" ";
 //ticks
 //零数组的差分也是零数组，所以差分数组的初始化直接用零数组进行区间修改即可
 //二维差分思想相同
+cin>>n>>m;
+for(int i=1;i<=n;++i)
+	cin>>val,d[i]+=val,d[i+1]-=val;
+for(int i=0;i<m;++i)
+	cin>>l>>r>>val,d[l]+=val,d[r+1]-=val;
+for(int i=1;i<=n;++i)
+	d[i]+=d[i-1],cout<<d[i]<<" ";
 ```
 二维差分：区间修改
