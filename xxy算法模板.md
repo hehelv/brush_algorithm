@@ -186,3 +186,19 @@ for(int i=1;i<=n;++i)
 	d[i]+=d[i-1],cout<<d[i]<<" ";
 ```
 二维差分：区间修改
+```c++
+int d[SIZE][SIZE];
+int n,m,q,val,x1,x2,y1,y2;
+cin>>n>>m>>q;
+for(int i=1;i<=n;++i)
+for(int j=1;j<=m;++j)
+    cin>>val,d[i][j]+=val,d[i+1][j]-=val,d[i][j+1]-=val,d[i+1][j+1]+=val;
+
+for(int i=0;i<q;++i)
+cin>>x1>>y1>>x2>>y2>>val,d[x1][y1]+=val,d[x2+1][y1]-=val,d[x1][y2+1]-=val,d[x2+1][y2+1]+=val;
+for(int i=1;i<=n;++i){
+for(int j=1;j<=m;++j)
+    d[i][j]+=d[i-1][j]+d[i][j-1]-d[i-1][j-1],cout<<d[i][j]<<" ";
+cout<<endl;
+}
+```
