@@ -211,7 +211,7 @@ for(int i=0;i<32;++i)
 	if(n>>i&1)count++;
 cout<<count;
 ```
-lowbit:n的最后一位1，常用与树状数组
+lowbit:n的最后一位1，常用于树状数组
 ```c++
 //lowbit(3)=1
 //lowbit(2)=2;
