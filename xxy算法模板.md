@@ -90,3 +90,20 @@ int len = strlen(s);
 for(int i =len-1;i>=0;--i)
 	A.push_back(s[i]-'0');
 ```
+高精度减法
+```c++
+//A>=B>=0
+vector<int> sub(vector<int>A,vector<int>B){
+	vector<int>C;
+	for(int t=0,i=0;i<A.size();++i){
+		t = A[i]-t;
+		if(i<B.size())t -= B[i];
+		C.push_back((t+10)%10);
+		if(t<0)t=1;
+		else t = 0;
+	}
+	while(C.size()>1&&C.bakc()==0)C.pop_back();
+	return C;
+}
+//使用前对A和B进行符号和顺序处理 以得到正确结果
+```
