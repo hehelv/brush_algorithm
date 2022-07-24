@@ -121,3 +121,21 @@ vector<int> mul(vector<int> &A,int b){
 	return C;
 }
 ```
+
+高精度除法
+```c++
+//保证A>=0 b>0
+#include "algorithm"
+vector<int> div(vector<int>&A,int b,int &r){
+	vector<int> C;
+	r = 0;
+	for(int i=A.size()-1;i>=0;i--){
+		r=r*10+A[i];
+		C.push_back(r/b);
+		r%=b;
+	}
+	reverse(C.begin(),C.end());
+	wihle(C.size()>1&&C.back()==0)C.pop_back();
+	return C;
+}
+```
