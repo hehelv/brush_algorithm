@@ -139,3 +139,13 @@ vector<int> div(vector<int>&A,int b,int &r){
 	return C;
 }
 ```
+前缀和
+```c++
+//前缀和均从下标1开始
+int a[SIZE],s[SIZE];
+for(int i=1;i<l=en;++i)
+	cin>>a[i],s[i]=s[i-1]+a[i];
+//l-r的和
+for(int i=0;i<m;++i)
+	cin>>l>>r,cout<<s[r]-s[l-1];
+```
