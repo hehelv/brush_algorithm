@@ -364,7 +364,7 @@ int main(){
     }
 }
 ```
-[区间和](https://www.acwing.com/problem/content/805/)
+[区间合并](https://www.acwing.com/problem/content/805/)
 ```C++
 #include "iostream"
 #include "map"
