@@ -235,7 +235,7 @@ cout<<count;
 //(2) 对于两个序列，维护某种次序，比如归并排序中合并两个有序序列的操作
 
 //最长连续不重复子序列
-//基本思路:使用双指着维护一个不重复区间，当指针i移动时判断是否有重复元素（使用数组标记出现过的元素）
+//基本思路:使用双指针维护一个不重复区间，当指针i移动时判断是否有重复元素（使用数组标记出现过的元素）
 //出现重复元素时，记录此时不重复区间长度，并移动j使得区间不重复
 //取所有不重复区间的长度的最大值为答案
 #include "iostream"
@@ -285,5 +285,82 @@ int main(){
         if(a[i]+b[j]<val)i++;
     }
     cout<<i<<" "<<j;
+}
+```
+（整数）离散化 [区间和](https://www.acwing.com/problem/content/804/)
+```c++
+//离散化就是将一个很大的区间映射到一个小的区间
+//整数离散化的所做法就是排序去重，二分查找得到下标
+//
+vector<int> alls; // 存储所有待离散化的值
+sort(alls.begin(), alls.end()); // 将所有值排序
+alls.erase(unique(alls.begin(), alls.end()), alls.end());   // 去掉重复元素
+// 二分求出x对应的离散化的值
+int find(int x) // 找到第一个大于等于x的位置
+{
+    int l = 0, r = alls.size() - 1;
+    while (l < r)
+    {
+        int mid = l + r >> 1;
+        if (alls[mid] >= x) r = mid;
+        else l = mid + 1;
+    }
+    return r + 1; // 映射到1, 2, ...n
+}
+//区间和
+//采用离散化的方式将值映射到一个较小的区域
+//由于可能存在对同一点进行多次修改的情况 采用pair记录操作 并手动去重
+//查询时对边界情况进行特判 如查询区间在左端点的左侧或右端点的右侧
+#include "iostream"
+#include "algorithm"
+#include "map"
+using namespace std;
+const int SIZE = 100010;
+pair<int,int> a[SIZE];
+
+struct cmp{
+    bool operator()(pair<int,int>A,pair<int,int>B){
+        return A.first<=B.first;
+    }
+};
+
+int main(){
+    int n,m,pos,val;
+    cin>>n>>m;
+    for(int i=1;i<=n;++i)
+        cin>>a[i].first>>a[i].second;
+    sort(a+1,a+n+1,cmp());
+    int i,j;
+    for(i=1,j=1;i<=n;++i,++j){
+        a[j]=a[i];
+        while(i<n&&a[i+1].first==a[j].first)a[j].second+=a[++i].second;
+    }
+    n = j-1;
+    for(int i=1;i<=n;++i)
+        a[i].second+=a[i-1].second;
+    //for(int i=1;i<=n;++i)
+	//	cout<<i<<" "<<a[i].first<<" "<<a[i].second<<endl; 
+    int x,y;
+    for(int i=0;i<m;++i){
+        int l=1,r=n;
+        cin>>x>>y;
+        while(l<r){
+            int mid = l+r>>1;
+            if(a[mid].first>=x)r=mid;
+            else l=mid+1;
+        }
+        int posx = l;
+        l=1,r=n;
+        while(l<r){
+            int mid = l+r+1>>1;
+            if(a[mid].first<=y)l = mid;
+            else r = mid-1;
+        }
+        int posy = l;
+        //cout<<"posx:"<<posx<<" posy:"<<posy<<endl;
+        if(y<a[1].first||x>a[n].first)cout<<0<<endl;//左端点的左侧，右端点的右侧
+        else if(posx<=posy)cout<<a[posy].second - a[posx-1].second<<endl;//有交集
+        else cout<<0<<endl;//无交集
+    }
 }
 ```
