@@ -364,3 +364,34 @@ int main(){
     }
 }
 ```
+[区间和](https://www.acwing.com/problem/content/805/)
+```C++
+#include "iostream"
+#include "map"
+#include "algorithm"
+using namespace std;
+
+struct cmp{
+    bool operator()(pair<int,int> A,pair<int,int>B){
+        return A.first<B.first;
+    }
+};
+
+int main(){
+    int n;
+    cin>>n;
+    vector<pair<int,int> >segs;
+    int l,r;
+    for(int i=0;i<n;++i)
+        cin>>l>>r,segs.push_back({l,r});
+    sort(segs.begin(),segs.end(),cmp());
+    vector<pair<int,int> >ans;
+    int s=segs.begin()->first,e=segs.begin()->second;
+    for(auto seg = segs.begin()+1;seg<segs.end();++seg){
+        if(seg->first<=e)e = max(seg->second,e);
+        else ans.push_back({s,e}),s = seg->first,e = seg->second;
+    }
+    ans.push_back({s,e});
+    cout<<ans.size();
+}
+```
