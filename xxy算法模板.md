@@ -227,3 +227,63 @@ while(n){
 }
 cout<<count;
 ```
+双指针 [最长连续不重复子序列](https://www.acwing.com/problem/content/801/) [数组元素的目标和](https://www.acwing.com/problem/content/802/)
+```c++
+//顾名思义，双指针意为使用两个指针进行索引，维护一种性质
+//常见问题分类：
+//(1) 对于一个序列，用两个指针维护一段区间
+//(2) 对于两个序列，维护某种次序，比如归并排序中合并两个有序序列的操作
+
+//最长连续不重复子序列
+//基本思路:使用双指着维护一个不重复区间，当指针i移动时判断是否有重复元素（使用数组标记出现过的元素）
+//出现重复元素时，记录此时不重复区间长度，并移动j使得区间不重复
+//取所有不重复区间的长度的最大值为答案
+#include "iostream"
+using namespace std;
+const int SIZE =100010;
+int a[SIZE];
+bool v[SIZE];
+
+int main(){
+    int n;
+    cin>>n;
+    for(int i=0;i<n;++i)
+        cin>>a[i];
+    int max_len =0;
+    int i=0,j=0;
+    for(;i<n;++i){
+        if(v[a[i]]){//a[i]重复 j右移
+            max_len = (i-j)>max_len?(i-j):max_len;
+            while(a[j]!=a[i])v[a[j++]]=0;
+            j++;
+            //cout<<j<<" "<<i<<endl;
+        }else v[a[i]]=1;
+    }
+    if(a[i]!=a[j])max_len = (i-j)>max_len?(i-j):max_len;//特判i走到n仍未发生冲突的情况
+        cout<<max_len;
+}
+
+//数组元素的目标和
+//维护两个数的和，i从前往后扫描A序列，j从后往前扫描序列B
+//i往后扫描时和变大，j往前扫描时，和变小
+//于是：当A[i]+B[j]>val j--; A[i]+B[i]<val i++;A[i]+B[j]==val 跳出循环
+#include "iostream"
+    using namespace std;
+const int SIZE =100010;
+int a[SIZE],b[SIZE];
+
+int main(){
+    int n,m,val;
+    cin>>n>>m>>val;
+    for(int i=0;i<n;++i)
+        cin>>a[i];
+    for(int j=0;j<m;++j)
+        cin>>b[j];
+    int i=0,j=m-1;
+    while(a[i]+b[j]!=val){
+        if(a[i]+b[j]>val)j--;
+        if(a[i]+b[j]<val)i++;
+    }
+    cout<<i<<" "<<j;
+}
+```
