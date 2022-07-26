@@ -395,3 +395,90 @@ int main(){
     cout<<ans.size();
 }
 ```
+[单调栈](https://github.com/hehelv/brush_algorithm.git)
+```c++
+//单调栈的使用场景：求点i左侧离i最近的比它小的值
+//考虑a[1~i]中a[j],若a[j]是a[i]左侧第一个比a[i]小的值
+//此时，a[j+1~i-1]均>=a[i]
+//对于a[i+1]，若a[i+1]>a[i],则a[i]为所求
+//若a[i+1]<=a[i],则a[1~j]中为a[i]所求
+//由此,a[j+1~i-1]这些在a[i]左侧且>=a[i]的元素均被舍弃
+//此时a[i+1]保存的元素单调递增
+//使用一个栈维护左侧序列，pop()比a[i+1]大的元素，再将a[i+1]放入栈
+#include "iostream"
+#include "stack"
+using namespace std;
+const int SIZE = 100010;
+int a[SIZE];
+
+int main(){
+    int n,val;
+    stack<int> stk;
+    cin>>n;
+    for(int i=0;i<n;++i){
+        cin>>val;
+        while(stk.size()&&stk.top()>=val)stk.pop();
+        //删除掉栈中比val大的值，将val插入栈
+        if(stk.size())cout<<stk.top()<<" ";
+        else cout<<"-1 ";
+        stk.push(val);
+    }
+}
+```
+单调队列 [滑动窗口](https://www.acwing.com/problem/content/156/)
+```C++
+//单调队列的使用场景：滑动长度为K的窗口，求窗口的最值
+//考虑维护区间的最小值，对于a[i-k+1~i]中的元素a[j]，若a[i+1]<a[j]
+//此时，只要窗口包含a[i+1]，a[j]都不会成为答案
+//因此，在往队列中加入新元素时，可以将大于（也可以是大于等于，处理方式稍有差异）新元素的值pop掉
+//此时队列保持单调，最小值位于最左侧
+
+//滑动窗口
+//处理思路：入队时将比新元素大的值删除，等于新元素的值保存
+//出队时，若队首元素等于区间起始值，出队
+//|[a1] a2 a3 a4 [a5]| a6 [a7] [a8]
+//由于单调队列队首只会保存窗口中的最小元素，当区间窗口等于队首元素时，进行pop
+//同时，最小元素可能存在多个，因此入队时仅删除大于它的元素
+//另一种处理方式：队列保存元素的下标，入队时删除大于等于(等于可选)的元素
+//出队时判断队首时候不在窗口内，不在则出队
+//
+#include "iostream"
+#include "deque"
+using namespace std;
+const int SIZE = 1000010;
+int a[SIZE];
+
+int main(){
+    deque<int> deq;
+    int n,k,Min,Max;
+    cin>>n>>k;
+    for(int i=0;i<n;++i){
+        cin>>a[i];
+    }
+    for(int i=0;i<k;++i){
+        while(deq.size()&&deq.back()>a[i])deq.pop_back();
+        deq.push_back(a[i]);
+    }
+    cout<<deq.front()<<" ";
+    for(int i=k;i<n;++i){
+        if(deq.front()==a[i-k])deq.pop_front();
+        while(deq.size()&&deq.back()>a[i])deq.pop_back();
+        deq.push_back(a[i]);
+        cout<<deq.front()<<" ";
+    }
+    puts("");
+    deq.clear();
+    for(int i=0;i<k;++i){
+        while(deq.size()&&deq.back()<a[i])deq.pop_back();
+        deq.push_back(a[i]);
+    }
+    cout<<deq.front()<<" ";
+    for(int i=k;i<n;++i){
+        if(deq.front()==a[i-k])deq.pop_front();
+        while(deq.size()&&deq.back()<a[i])deq.pop_back();
+        deq.push_back(a[i]);
+        cout<<deq.front()<<" ";
+    }
+    puts("");
+}
+```
