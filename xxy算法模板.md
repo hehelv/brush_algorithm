@@ -502,7 +502,11 @@ int main(){
         while(j&&t[i]!=t[j+1])j=ne[j];//匹配不成功则退一步，p=0时退无可退
         if(t[i]==t[j+1])j++;//匹配成功，j进一步
         //若匹配不成功，此时p为0
-        ne[i]=j;
+        //优化 当t[i+1]==t[j+1]时，若匹配时t[j+1]未匹配成功，则t[i+1]也不会匹配成功
+        //此时 可令ne[i]=ne[j];
+        //if(t[i+1]==t[j+1])ne[i]=ne[j];
+        //else
+            ne[i]=j;
     }
     for(int i=1,j=0;i<=lens;++i){
         while(j&&s[i]!=t[j+1])j=ne[j];
