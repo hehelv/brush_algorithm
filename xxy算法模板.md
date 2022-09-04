@@ -514,3 +514,45 @@ int main(){
     }
 }
 ```
+
+trie字符串计数
+```c++
+#include "iostream"
+using namespace std
+const int SIZE = 1e6+10;
+int node[SIZE][26],cnt[SIZE],idx;
+char s[SIZE];
+
+void insert(char *s){
+    int pos =0,cur;
+    for(int i=0;s[i];++i){
+        cur = s[i]-'a';
+        if(!node[pos][cur])node[pos][cur]=++idx;
+        pos = node[pos][cur];
+    }
+    cnt[pos]++;
+}
+
+int query(char *s){
+    int pos=0,cur;
+    for(int i=0;s[i];++i){
+        cur = s[i]-'a';
+        if(!node[pos][cur])return 0;
+        pos = node[pos][cur];
+    }
+    return cnt[pos];
+}
+
+int main(){
+    int n;
+    cin>>n;
+    while(n--){
+        char type;
+        cin>>type>>s;
+        if(type=='Q')
+            printf("%d\n",query(s));
+        else
+            insert(s);
+    }
+}
+```
