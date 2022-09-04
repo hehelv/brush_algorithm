@@ -102,7 +102,7 @@ vector<int> sub(vector<int>&A,vector<int>&B){
 		if(t<0)t=1;
 		else t = 0;
 	}
-	while(C.size()>1&&C.bakc()==0)C.pop_back();
+	while(C.size()>1&&C.back()==0)C.pop_back();
 	return C;
 }
 //使用前对A和B进行符号和顺序处理 以得到正确结果
@@ -480,5 +480,37 @@ int main(){
         cout<<deq.front()<<" ";
     }
     puts("");
+}
+```
+
+KMP算法
+```c++
+#include "iostream"
+using namespace std;
+const int SIZE = 1e6+10;
+char t[SIZE],s[SIZE];
+int ne[SIZE];//使用next时可能会和某些库冲突
+//next[i]=j的含义为以位置i结尾的后缀与前缀的最大匹配长度为j
+//t[1,j]=t[i-j+1,i];
+
+int main(){
+    cin>>t+1>>s+1;
+    int lent = strlen(t+1);
+    int lens = strlen(s+1);
+    //KMP习惯从1开始
+    for(int i=2,j=0;i<=lent;++i){//i=0不需要匹配
+        while(j&&t[i]!=t[j+1])j=ne[j];//匹配不成功则退一步，p=0时退无可退
+        if(t[i]==t[j+1])j++;//匹配成功，j进一步
+        //若匹配不成功，此时p为0
+        ne[i]=j;
+    }
+    for(int i=1,j=0;i<=lens;++i){
+        while(j&&s[i]!=t[j+1])j=ne[j];
+        if(s[i]==t[j+1])j++;
+        if(j==lent){//匹配成功
+            //进行匹配成功的操作
+            j=ne[j];
+        }
+    }
 }
 ```
