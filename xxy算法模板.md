@@ -560,3 +560,77 @@ int main(){
     }
 }
 ```
+并查集
+```c++
+/*
+ * 并查集路径压缩
+ * 初始化时指向自身 p[i]=i
+ * 查询路径上的非根节点指向根节点并返回根节点 if(p[x]!=x)p[x]=find(p[x]);return p[x];
+ * 合并时让A的根结点指向B的根节点 p[find(A)]=find(B)
+ * 有时需要在AB不属于同一个集合时才能合并 if(find(A)!=find(b))p[find(A)]=find(B);
+ * */
+
+const int SIZE = 1e6+10;
+int p[SIZE];
+
+void init(int n){for(int i=1;i<=n;++i)p[i]=i};
+
+int find(int x){
+    if(p[x]!=x)p[x]=find(p[x]);
+    return p[x];
+}
+
+void merge(int a,int b){
+    if(find(a)!=find(b))
+        p[find(a)]=find(b);
+}
+
+/*
+ * 路径压缩+维护集合大小
+ * ss只对根节点有意义，表示根节点对应集合的大小
+ * 初始化指向自身 ss为1 p[i]=i,ss[i]=1;
+ * 查询时非根节点指向根节点并返回根节点 if(p[x]!=x) p[x]=find(p[x]);return p[x];
+ * 合并时B的根加上A集合的大小 再让A的根指向B ss[find(B)]+=ss[find(A)],p[find(A)]=find(B);
+ * */
+
+const int SIZE = 1e6+10;
+int p[SIZE],ss[SIZE];//不使用size数组是因为size在某些头文件中实现过
+
+void init(int n){for(int i=1;i<=n;++i)p[i]=i,ss[i]=1;}
+
+int find(int x){if(p[x]!=x)p[x]=find(p[x]);return p[x];}
+
+void merge(int a,int b){
+    if(find(a)!=find(b)){
+        ss[find(b)]+=ss[find(a)];
+        p[find(a)]=find(b);
+    }
+}
+
+/*
+ * 路径压缩+维护节点到根节点路径
+ * d数组表示节点x到p[x]的距离
+ * 初始化时节点指向自身 距离为0 p[i]=i,d[i]=0;
+ * 更新查询路径上非根节点的距离并指向、返回根节点 if(p[x]!=x){int u=find(p[x];d[x]+=d[p[x]];p[x]=u)}return p[x];
+ * 合并时根据要求初始距离p[find(a)]=find(b),d[find(a)]=distance;
+ * */
+
+const int SIZE = 1e6+10;
+int p[SIZE],d[SIZE];
+
+void init(int n){for(int i=1;i<=n;++i)p[i]=i,d[i]=0}
+
+int find(int x){
+    if(p[x]!=x){
+        int u = find(p[x]);
+        d[x]+=d[p[x]];
+        p[x]=u;
+    }
+    return p[x];
+}
+
+void merge(int a,int b){
+    p[find(a)]=find(b);
+    d[find(a)]=DISTANCE;
+}
+```
