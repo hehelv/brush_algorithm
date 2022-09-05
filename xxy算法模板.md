@@ -634,3 +634,57 @@ void merge(int a,int b){
     d[find(a)]=DISTANCE;
 }
 ```
+
+堆
+```c++
+//heap priority_queue 可用于输出序列中最小的值 函数有push pop 内部实现有down和up
+//heap可以用hp维护堆中i号元素在原序列中的位置 用ph维护原序列i号元素在堆中的位置
+const int SIZE = 1e6+10;
+int h[SIZE],ph[SIZE],hp[SIZE],idx;
+
+void heap_swap(int a,int b){
+    swap(h[a],h[b]);
+    swap(hp[a],hp[b]);
+    swap(ph[hp[a]],ph[hp[b]]);
+}
+
+void down(int u){
+    //对于节点u 若存在儿子节点比自己小 与最小的儿子节点交换 并对该儿子节点进行相同的操作
+    //pop和序列初始化时使用
+    int t=u;
+    if(u*2<=idx&&h[u*2]<h[t])t=u*2;
+    if(u*2+1<=idx&&h[u*2+1]<h[t])t=u*2+1;
+    if(t!=u)heap_swap(t,u),down(t);
+}
+
+void　up(int u){
+    //若当前节点比父节点小，与父节点交换 push时调用
+    while(u/2&&h[u]<h[u/2]){
+        heap_swap(u,u/2);
+        u/=2;
+    }
+}
+
+void push(int val){
+    //插入元素时，将元素置于堆末并执行up操作
+    h[++idx]=val;
+    //如果维护hp和ph 需要新参数pos
+    //hp[idx]=pos
+    //ph[pos]=idx
+    up(idx);
+}
+
+int pop(){
+    //交换第一个元素和最后一个元素 size-- 并对第一个元素进行down操作
+    int val = h[1];
+    heap_swap(1,idx);
+    idx--;
+    down(1);
+    return val;
+}
+
+//序列初始化
+idx = n;
+for(int i=1;i<=n;++i)cin>>h[i];//维护ph和hp时 ph[i]=hp[i]=1;
+for(int i=n/2;i;i--)down(i);
+```
