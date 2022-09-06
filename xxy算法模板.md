@@ -397,6 +397,110 @@ int main(){
     cout<<ans.size();
 }
 ```
+
+中缀表达式转后缀表达式
+```c++
+/*
+ * 中缀表达式转后缀表达式的实现思路
+ * 对于数字：直接输出
+ * 对于左括号：入栈
+ * 对于右括号：输出到左括号为止
+ * 对于从左往右的运算符：输出栈内优先级大于等于它的操作符
+ * 对于从右往左的运算符：输出栈内优先级大于它的操作符
+ * pri['(']=0 pri['+']=pri['-']=1 pri['*']+pri['/']=2 pri['^']=3
+ * 从左往右+ - * / 从右往左 ^
+ * */
+
+// 后缀表达式求值维护一个栈
+// 操作数直接入栈
+// 遇到操作符从栈中取出两个元素进行运算 再将结果入栈
+// 运算顺序为s[top-1] op s[top]
+
+#include "iostream"
+#include "stack"
+#include "cmath"
+using namespace std;
+const int SIZE = 1e6+10;
+char t[SIZE];//输入序列
+stack<char> s;
+stack<double> ans;
+
+int pri[200];
+
+void op(char  type){
+    double a,b;
+    b = ans.top();
+    ans.pop();
+    a = ans.top();
+    ans.pop();
+    switch (type) {
+        case '+':
+            ans.push(a+b);
+            break;
+        case '-':
+            ans.push(a-b);
+            break;
+        case '*':
+            ans.push(a*b);
+            break;
+        case '/':
+            ans.push(a/b);
+            break;
+        case '^':
+            ans.push(pow(a,b));
+            break;
+    }
+}
+
+int main(){
+    cin>>t;
+    //(1+2)*(3-4)/(5^6)
+    pri['+']=pri['-']=1;
+    pri['*']=pri['/']=2;
+    pri['^']=3;//从右侧开始运算
+    for(int i=0;t[i];++i){
+        if(t[i]=='(')s.push('(');
+        else if(t[i]>='0'&&t[i]<='9')cout<<t[i],ans.push(t[i]-'0');
+        else if(t[i]=='+'||t[i]=='-'){//+,-号 不为空或不为( 输出优先级大于等于它的所有元素 入栈
+            while(s.size()&&s.top()!='('&&pri[s.top()]>=1){
+                op(s.top());
+                cout<<s.top();
+                s.pop();
+            }
+            s.push(t[i]);
+        }else if(t[i]=='*'||t[i]=='/'){//* /号不为空输出优先级大于等于它的所有元素 入栈
+            while(s.size()&&s.top()!='('&&pri[s.top()]>=2){
+                op(s.top());
+                cout<<s.top();
+                s.pop();
+            }
+            s.push(t[i]);
+        }else if(t[i]=='^'){//输出优先级大于^的符号 入栈
+            while(s.size()&&s.top()!='('&&pri[s.top()]>3){
+                op(s.top());
+                cout<<s.top();
+                s.pop();
+            }
+            s.push(t[i]);
+        }else if(t[i]==')'){//出栈到(
+            char top;
+            do{
+                top = s.top();
+                  if(top!='(')cout<<top,op(top);
+                s.pop();
+            }while(top!='(');
+        }
+    }
+    while(s.size()){
+        op(s.top());
+        cout<<s.top();
+        s.pop();
+    }
+    printf("\n%lf",ans.top());
+    //(1-2)*(3+4)^2^3/6
+    //960,800.16666666666666666666666667
+}
+
 [单调栈](https://github.com/hehelv/brush_algorithm.git)
 ```c++
 //单调栈的使用场景：求点i左侧离i最近的比它小的值
