@@ -683,8 +683,25 @@ int pop(){
     return val;
 }
 
+void D(int k){//删除第K个插入的值
+    int heap_pos = ph[k];
+    heap_swap(heap_pos,idx);
+    idx--;
+    if(heap_pos<=idx){
+        down(heap_pos);//down和up只会执行其中一个
+        up(heap_pos);//不需要动态维护heap_pos
+    }
+}
+
+void C(int k, int x){//修改第K个插入的值
+    h[ph[k]]=x;
+    down(ph[k]);//down和up至多执行其中一个
+    up(ph[k]);
+}
+
 //序列初始化
 idx = n;
 for(int i=1;i<=n;++i)cin>>h[i];//维护ph和hp时 ph[i]=hp[i]=1;
 for(int i=n/2;i;i--)down(i);
 ```
+
