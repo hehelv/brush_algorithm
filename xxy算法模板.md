@@ -838,3 +838,65 @@ ULL get(int l,int r) {//返回序列s[l,r]的hash值
     return h[r]-h[l-1]*p[r-l+1];
 }
 ```
+
+深搜经典问题
+```c++
+//N数码问题
+//深搜时保证横纵不冲突：每层仅放一个 每列仅放一个 用has维护
+//左上方向和右上方向进行判断 保证不冲突
+#include "iostream"
+using namespace std;
+const int SIZE =15;
+int n;
+bool has[SIZE];
+bool v[SIZE][SIZE];
+int count;
+
+bool judge(int level,int pos){
+    int i,j;
+    i = level,j=pos;
+
+    while(--i&&--j){
+        if(v[i][j])return false;
+    }
+    i = level,j=pos;
+    while((--i)&&++j<=n){
+        if(v[i][j])return false;
+    }
+    return true;
+}
+
+void dfs(int level){
+    if(level==n+1){
+        count++;
+        for(int i=1;i<=n;++i){
+            for(int j=1;j<=n;++j)
+                if(v[i][j])printf("Q");
+                else printf(".");
+            puts("");
+        }
+        puts("");
+        return ;
+    }
+    for(int i=1;i<=n;++i){
+        if(!has[i]&&judge(level,i)){
+            has[i]=1;
+            v[level][i]=1;
+            dfs(level+1);
+            has[i]=0;
+            v[level][i]=0;
+        }
+    }
+}
+
+int main(){
+    cin>>n;
+    dfs(1);
+    cout<<count;
+}
+
+//序列字典序问题
+//使用algorithm头文件下的 prev_permutation 或 next_permutation(iterator begin,iterator end)
+//该函数求序列前一个[后一个]字典序 并返回是否成功[成功则输出 用do while循环]
+//如a[1,n] do{print_array}while(next_permutation(a+1,a+n+1));
+```
