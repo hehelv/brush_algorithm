@@ -1,3 +1,5 @@
+算法模板基于[acwing](acwing.com)
+
 * quick_sort
 ```C++
 void quick_sort(int *a,int l,int r){
@@ -705,3 +707,30 @@ for(int i=1;i<=n;++i)cin>>h[i];//维护ph和hp时 ph[i]=hp[i]=1;
 for(int i=n/2;i;i--)down(i);
 ```
 
+字符串哈希
+```c++
+//字符串哈希将字符串视为p进制的数，p通常取131或13331 模取2^64 ，使用unsigned long long存储即可 溢出即取模
+//1.不能将字母映射成0，通常a='a',b='b'.....
+//2.不考虑冲突，假设不会发生冲突
+
+//前缀字符串hash的性质字串s[l,r]的hash值为h[r]-h[l-1]*p[r-l+1]
+//通过前缀字符串哈希可以快速进行字符串比较
+
+typedef unsigned long long ULL;
+const int SIZE = 1e6+10;
+ULL h[SIZE],p[SIZE];
+const ULL P = 131;//底数 取131或13331
+
+//初始化
+char s[SIZE];
+cin>>s+1;
+p[0]=1;//指数初始化
+for(int i=1;s[i];++i){
+    h[i]=h[i-1]*P+s[i];
+    p[i]=p[i-1]*P;
+}
+
+ULL get(int l,int r) {//返回序列s[l,r]的hash值
+    return h[r]-h[l-1]*p[r-l+1];
+}
+```
