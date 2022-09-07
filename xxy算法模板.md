@@ -900,3 +900,66 @@ int main(){
 //该函数求序列前一个[后一个]字典序 并返回是否成功[成功则输出 用do while循环]
 //如a[1,n] do{print_array}while(next_permutation(a+1,a+n+1));
 ```
+
+广搜经典问题
+```c++
+//八数码问题 
+/*
+ * 3 2 1
+ * 6 5 4
+ * x 8 7
+ * 通过对x与周围元素进行交换 问需要多少次才能得到下图，不能得到输出-1
+ * 1 2 3
+ * 4 5 6
+ * 7 8 x
+ * 
+ * 八数码需要解决的问题是状态表示的问题 以及保存状态的距离
+ * 这里用string保存状态 用unordered_map<string,int>来保存状态的距离
+ * */
+#include "iostream"
+#include "cstring"
+#include "algorithm"
+#include "queue"
+using namespace std;
+
+int bfs(string start){
+    int dx[]={-1,0,1,0},dy[]={0,1,0,-1};//二维数组四个方向 恰好倒置
+    string end = "12345678x";
+    queue<string> q;
+    q.push(start);
+    unordered_map<string,int> dist;
+    dist[start]=0;
+    while(q.size()){
+        string cur = q.front();
+        q.pop();
+        int cur_dis = dist[cur];
+        if(cur == end)return cur_dis;//string可以进行比较
+        int pos = cur.find('x');
+        int x = pos/3,y=pos%3;//
+        //从0开始一维转二维 x=pos/len y=pos%len
+        //从0开始二维转一维 x*len+y
+        for(int i=0;i<4;++i){
+            int a=x+dx[i],b=y+dy[i];
+            if(a>=0&&a<3&&b>=0&&b<3){
+                swap(cur[pos],cur[a*3+b]);//
+                if(dist.count(cur)==0){//unordered_map 用于查找
+                    q.push(cur);
+                    dist[cur]=cur_dis+1;
+                }
+                swap(cur[pos],cur[a*3+b]);//添加后恢复
+            }
+        }
+    }
+    return -1;
+}
+
+int main(){
+    string start;
+    char s[2];
+    for(int i=0;i<9;++i){
+        cin>>s;
+        start+=s[0];
+    }
+    cout<<bfs(start)<<endl;
+}
+```
