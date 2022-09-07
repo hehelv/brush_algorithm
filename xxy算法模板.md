@@ -1023,3 +1023,71 @@ int main(){
     cout<<min_max_son;
 }
 ```
+
+拓扑排序topology
+```c++
+/*
+ * 拓扑排序维护一个入度数组，从入度为0点的点开始搜索，对每个搜索到的点入度-1
+ * 再将入度为0的点加入搜索队列
+ * 若搜索结束之后仍有点入度不为0，则说明存在环或自环
+ * */
+
+#include "iostream"
+#include "queue"
+using namespace std;
+const int SIZE =1e6+10;
+int h[SIZE],idx,indegree[SIZE],n;
+
+
+struct Edge{
+    int next;
+    int ver;
+}edge[SIZE];
+
+void add(int a,int b){
+    indegree[b]++;
+    edge[++idx].ver = b;
+    edge[idx].next = h[a];
+    h[a]=idx;
+}
+
+queue<int> top_sort;//记录拓扑排序序列
+
+void get_top_sort(){
+    queue<int> q;
+    for(int i=1;i<=n;++i){//将入度为0的点入队
+        if(indegree[i]==0)q.push(i),top_sort.push(i);
+    }
+    while(q.size()){
+        int cur = q.front();
+        q.pop();
+        int ne = h[cur];
+        while(ne){
+            indegree[edge[ne].ver]--;//对搜索到的每个点入度减1
+            if(indegree[edge[ne].ver]==0)q.push(edge[ne].ver),top_sort.push(edge[ne].ver);//入度为0，入队
+            ne = edge[ne].next;
+        }
+    }
+    int has_loop = 0;
+    for(int i=1;i<=n;++i)
+        if(indegree[i])has_loop=1;
+    if(has_loop)cout<<-1;//存在环
+    else while(top_sort.size()){//输出序列
+        int cur = top_sort.front();
+        top_sort.pop();
+        cout<<cur<<" ";
+    }
+}
+
+
+int main(){
+    int m;
+    cin>>n>>m;
+    while(m--){
+        int a,b;
+        cin>>a>>b;
+        add(a,b);
+    }
+    get_top_sort();
+}
+```
