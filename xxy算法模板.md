@@ -963,3 +963,63 @@ int main(){
     cout<<bfs(start)<<endl;
 }
 ```
+
+树的重心（树上DFS）
+```c++
+/* 树的重心的定义：重心是指树中的一个节点，如果将这个点删除后，剩余各个连通块中点数的最大值最小，那么这个节点被称为树的重心。
+ * 给定一棵树：输出这棵树的重心，并输出删掉重心之后，剩余连通块的最大值
+ * 对树进行DFS时，可以将树按照当前点进行划分，分为子树，自身，父节点部分
+ * 通过DFS得到每个子树的大小，可以计算得到父节点部分的大小，从而维护各个部分的最大值
+ * 在DFS过程中记录最大值最小的点并维护最大快的最小值
+ * */
+
+#include "iostream"
+using namespace std;
+const int SIZE = 1e6+10;
+int head[SIZE],idx,n;
+
+struct Edge{
+    int next;
+    int ver;
+}edge[SIZE];
+
+void add(int a,int b){
+    edge[++idx].ver = b;
+    edge[idx].next = head[a];
+    head[a] = idx;
+}
+
+bool v[SIZE];
+
+int min_max_son = 0x3f3f3f3f;
+
+int dfs(int pos){
+    v[pos]=1;
+    int max_son = 0;
+    int count_son = 0;//所有子树和
+    int ne = head[pos];
+    while(ne){
+        if(!v[edge[ne].ver]){
+            int son_num = dfs(edge[ne].ver);
+            count_son += son_num;
+            max_son  = max(max_son,son_num);//维护子树的最大值
+        }
+        ne = edge[ne].next;
+    }
+    max_son = max(max_son,n-count_son-1);//父节点部分等于总数-子树和-1
+    min_max_son = min(max_son,min_max_son);//维护最大块的最小值
+    return count_son+1;
+}
+
+int main(){
+    cin>>n;
+    for(int i=1;i<n;++i){
+        int a,b;
+        cin>>a>>b;
+        add(a,b);
+        add(b,a);
+    }
+    dfs(1);
+    cout<<min_max_son;
+}
+```
