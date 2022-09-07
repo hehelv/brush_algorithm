@@ -1091,3 +1091,33 @@ int main(){
     get_top_sort();
 }
 ```
+
+朴素Dijkstra
+```c++
+/*
+ * O(n^2)
+ * 1.初始化距离
+ * 2.找到未找到最短路点中距离最小的点
+ * 3.该点为下一个最短点
+ * 4.用该点更新其他点的距离
+ * */
+
+int g[N][N],d[N];
+bool  v[N];
+void dijkstra(int s,int n){
+    memset(d,0x3f,sizeof(d));
+    memset(v,0,sizeof(v));
+    d[s]=0;
+    for(int i=1;i<n;++i){//n-1轮
+        int t=-1;//t=-1 与(t==-1||condition)是常用找下标的方式
+        for(int j=1;j<=n;++j)//找到未标记的距离最近的点
+            if(!v[j]&&(t==-1||d[t]>d[j]))
+                t=j;
+        for(int j=1;j<=n;++j)//更新其他点的距离
+            d[j]=min(d[j],d[t]+g[t][j]);
+        v[t]=1;//标记
+    }
+    for(int i=1;i<=n;++i)//输出距离
+        cout<<d[i]<<" ";
+}
+```
