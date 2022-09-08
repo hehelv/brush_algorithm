@@ -1079,7 +1079,6 @@ void get_top_sort(){
     }
 }
 
-
 int main(){
     int m;
     cin>>n>>m;
@@ -1141,7 +1140,7 @@ bool v[SIZE];
 typedef pair<int,int> PII ;
 
 struct Edge{
-    int next ;
+    int next;
     int ver;
     int dis;
 }edge[SIZE];
@@ -1161,7 +1160,7 @@ void dijkstra(int s,int n){
     d[s]=0;
     q.push(PII(0,s));
     while(q.size()){
-        PII t = q.top();
+        PII t = q.top();//优先级队列使用top而非front
         q.pop();
         int cur = t.second;
         int cur_dis = t.first;
@@ -1178,5 +1177,53 @@ void dijkstra(int s,int n){
     if(d[n]==0x3f3f3f3f)cout<<-1;
     else cout<<d[n];
 }
+```
 
+bellman_ford算法 [有边数限制的最短路](https://www.acwing.com/problem/content/description/855/)
+```c++
+/*
+ * bellman_ford容忍负权边，但是不允许存在负环
+ * */
+#include "iostream"
+#include "cstring"
+using namespace std;
+const int N = 510;
+const int M = 1e4+10;
+int d[N],backup[N],idx,n,m;
+
+struct Edge{//bellman_ford算法对边的存储没有要求，只需要能够遍历所有边
+    int a,b,dis;
+}edge[M];
+
+inline void add(int a,int b,int c){
+    edge[++idx]={a,b,c};
+}
+
+void bellman_ford(int k){
+    memset(d,0x3f,sizeof(d));
+    d[1]=0;
+    for(int i=1;i<=k;++i){//每循环一次 走一步
+        memcpy(backup,d,sizeof(d));//普通的bellman_ford会出现串联的情况
+        for(int j=1;j<=m;++j)//更新时只用备份的结果，使得每次循环严格更新一次
+            d[edge[j].b]=min(d[edge[j].b],backup[edge[j].a]+edge[j].dis);
+    }
+    if(d[n]>0x3f3f3f3f/2)cout<<"impossible";
+    else cout<<d[n];
+}
+/*
+ * 串联现象：1 2 1;2 3 1;1 3 3;
+ * 更新1->2  2->3 1->3 此时得到了1->3的最短路 但最短路走了两步
+ * 每次只使用前一次的结果更新才能保证每次只能走一步
+ * */  
+
+int main(){
+    int k;
+    cin>>n>>m>>k;
+    for(int i=1;i<=m;++i){
+        int a,b,c;
+        cin>>a>>b>>c;
+        add(a,b,c);
+    }
+    bellman_ford(k);
+}
 ```
