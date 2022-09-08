@@ -1388,3 +1388,148 @@ void bellman_ford(){
     cout<<"No";
 }
 ```
+
+floyd算法
+```c++
+/*
+ * ijk算法，可以用于判断负环：在计算过程中如果出现g[i][i]<0,则说明存在负环
+ * */
+#include "iostream"
+#include "cstring"
+using namespace std;
+const int N = 201;
+int g[N][N],n,m,k;
+
+int main(){
+    cin>>n>>m>>k;
+    memset(g,0x3f,sizeof(g));
+    for(int i=1;i<=n;++i)
+        g[i][i]=0;
+    while(m--){
+        int a,b,c;
+        cin>>a>>b>>c;
+        g[a][b]=min(g[a][b],c);
+    }
+    
+    for(int k=1;k<=n;++k)
+        for(int i=1;i<=n;++i)
+            for(int j=1;j<=n;++j)
+                g[i][j]=min(g[i][j],g[i][k]+g[k][j]);
+    while(k--){
+        int a,b;
+        cin>>a>>b;
+        if(g[a][b]>0x3f3f3f3f/2)cout<<"impossible"<<endl;
+        else cout<<g[a][b]<<endl;
+    }
+}
+```
+
+prim算法
+```c++
+/*
+ * prim求最小生成树
+ * 基本思路：每次将最小生成树集合外最短的边加入集合
+ * 实现方法：1.找到集合外的距离最近的点2.将点加入集合3.用新加入的点更新集合外点到集合的距离
+ * 使用d数组维护到最小生成树集合的距离，初始化INF，令其中任意一点d=0
+ * */
+#include "iostream"
+#include "cstring"
+using namespace std;
+const int N = 510;
+int g[N][N],d[N],n,m;
+bool v[N];
+
+void prim(){
+    memset(d,0x3f,sizeof(d));//初始化距离为INF
+    d[1]=0;//将任意一点距离置0 作为下一个加入集合的点（此时集合为空集）
+    for(int i=1;i<=n;++i){//重复操作n次
+        int t=-1;
+        for(int j=1;j<=n;++j)
+            if(!v[j]&&(t==-1||d[t]>d[j]))t=j;//找到集合外距离最近的点
+        v[t]=1;//将该点加入集合
+        for(int j=1;j<=n;++j)
+            if(!v[j])d[j]=min(d[j],g[t][j]);//更新集合外其它点到集合的距离
+    }
+    int ans = 0;
+    for(int i=1;i<=n;++i)
+        if(d[i]==0x3f3f3f3f){//存在边长为INF 则说明不是连通图
+            cout<<"impossible";
+            return;
+        }else ans+=d[i];//得到生成树大小
+    
+    cout<<ans;
+}
+
+int main(){
+    memset(g,0x3f,sizeof(g));
+    cin>>n>>m;
+    while(m--){
+        int a,b,c;
+        cin>>a>>b>>c;
+        g[a][b]=g[b][a]=min(g[a][b],c);//有重边
+    }
+    prim();
+    return 0;
+}
+```
+
+krustal算法
+```c++
+/*
+ * 每次选择最短的边，如果该边的两个端点属于不同的集合，则说明是生成树的一条边
+ * 并查集+优先级队列（或者排序，保证有序即可）
+ * */
+
+#include "iostream"
+#include "algorithm"
+using namespace std;
+const int SIZE = 2e5+10;
+int p[SIZE],idx,n,m;
+
+struct Edge{
+    int a,b,dis;
+}edge[SIZE];
+
+struct cmp{
+    bool operator()(Edge a,Edge b){
+        return a.dis<b.dis;
+    }
+};
+
+int find(int x){
+    if(p[x]!=x)p[x]=find(p[x]);
+    return p[x];
+}
+
+void merge(int a,int b){
+    if(find(a)!=find(b)){
+        p[find(a)]=find(b);
+    }
+}
+
+void krustal(){
+    for(int i=1;i<=n;++i)
+        p[i]=i;
+    sort(edge+1,edge+m+1,cmp());
+    int ans =0,cnt = 0;
+    for(int i=1;i<=m;++i){
+        int a=edge[i].a,b=edge[i].b,dis=edge[i].dis;
+        if(find(a)==find(b))continue;
+        merge(a,b);
+        ans += dis;
+        cnt++;
+    }
+    if(cnt==n-1)cout<<ans;
+    else cout<<"impossible";
+}
+
+int main(){
+    cin>>n>>m;
+    for(int i=1;i<=m;++i){
+        int a,b,c;
+        cin>>a>>b>>c;
+        edge[++idx]={a,b,c};
+    }
+    krustal();
+}
+```
