@@ -1183,6 +1183,7 @@ bellman_ford算法 [有边数限制的最短路](https://www.acwing.com/problem/
 ```c++
 /*
  * bellman_ford容忍负权边，但是不允许存在负环
+ * bellman_ford判断负环的方法：若程序能够进行第N轮松弛，则说明存在负环
  * */
 #include "iostream"
 #include "cstring"
@@ -1208,6 +1209,8 @@ void bellman_ford(int k){
             d[edge[j].b]=min(d[edge[j].b],backup[edge[j].a]+edge[j].dis);
     }
     if(d[n]>0x3f3f3f3f/2)cout<<"impossible";
+    //这里使用d[n]>0x3f3f3f3f/2是因为存在负权边 如a-/-b a-/-c b-->c=-1
+    //a-->c = 0x3f3f3f3f-1 !=0x3f3f3f3f
     else cout<<d[n];
 }
 /*
@@ -1225,5 +1228,163 @@ int main(){
         add(a,b,c);
     }
     bellman_ford(k);
+}
+```
+
+SPFA:队列优化的Bellman_ford算法
+```c++
+/*
+ * bellman_ford暴力对所有边进行松弛，SPFA基于这样一个事实进行优化：
+ * 对于边AB，只有点A进行松弛了，点B的松弛才具有意义
+ * 因此用队列维护一个更新序列，当某一点更新之后，将其邻接点入队（相同的点不需要重复入队，因此需要一个布尔数组对入队的点进行标记）
+ * */
+#include <cstring>
+#include "iostream"
+#include "queue"
+using namespace std;
+const int N =1e5+10;
+const int M = 1e5+10;
+int h[N],d[N],idx,n,m;
+bool v[N];
+
+struct Edge{
+    int ver;
+    int next;
+    int dis;
+}edge[M];
+
+void add(int a,int b,int c){
+    edge[++idx].ver =b;
+    edge[idx].dis = c;
+    edge[idx].next = h[a];
+    h[a]=idx;
+}
+
+void spfa(){
+    memset(d,0x3f,sizeof d);
+    memset(v,0,sizeof(v));
+    d[1]=0;
+    queue<int> q;
+    q.push(1);
+    v[1]=1;
+    while(q.size()){
+        int u = q.front();
+        q.pop();
+        v[u]=0;
+        int ne = h[u];
+        while(ne){
+            int cur=  edge[ne].ver;
+            if(d[cur]>d[u]+edge[ne].dis){
+                d[cur]=d[u]+edge[ne].dis;
+                if(!v[cur])q.push(cur),v[cur]=1;
+            }
+            ne = edge[ne].next;
+        }
+    }
+    if(d[n]>0x3f3f3f3/2)cout<<"impossible";
+    else cout<<d[n];
+}
+
+int main (){
+    cin>>n>>m;
+    while (m--){
+        int a,b,c;
+        cin>>a>>b>>c;
+        add(a,b,c);
+    }
+    spfa();
+}
+```
+
+SPFA判断负环
+```c++
+/*
+ * SPFA判断负环的方法：对于图中任意一对点(a,b),如果不存在负环，则a到b的最短路最多经过n-1个点（除a意外的所有点）。当a到b的最短路长度超过n-1时，则说明存在负环。
+ * 由此，可以使用cnt标记a到b最短路经过的点数
+ * 当d[v]<d[u]+g[u][v] d[v]=d[u]+g[u][v]时，cnt[v]=cnt[u]+1
+ * 朴素的方法：对图中每个点进行SPFA，看是否存在负环（仅一个点只能知道该点到其他点的路径是否存在负环，由此需要对每个点进行SFPA）
+ * 
+ * 巧妙的方法：假设存在一个点0，它到所有点都存在一条长度为0的边，将所有点入队并进行SPFA，只需一次就i能判断负环。
+ * */
+#include "iostream"
+#include "cstring"
+#include "queue"
+using namespace std;
+const int N = 2010;
+const int M = 10010;
+int h[N],d[N],cnt[N],idx,n,m;
+bool v[N];
+
+struct Edge{
+    int next;
+    int ver;
+    int dis;
+}edge[M];
+
+void add(int a,int b,int c){
+    edge[++idx].ver =b;
+    edge[idx].dis = c;
+    edge[idx].next = h[a];
+    h[a]=idx;
+}
+
+void SFPA(){
+    queue<int> q;
+    for(int i=1;i<=n;++i)
+        q.push(i),v[i]=1;
+        
+    while(q.size()){
+        int pos = q.front();
+        q.pop();
+        v[pos]=0;
+        if(cnt[pos]==n){
+            cout<<"Yes";
+            return;
+        }
+        int ne = h[pos];
+        while(ne){
+            int cur = edge[ne].ver;
+            if(d[cur]>d[pos]+edge[ne].dis){
+                d[cur]=d[pos]+edge[ne].dis;
+                cnt[cur]=cnt[pos]+1;
+                if(!v[cur])v[cur]=1,q.push(cur);
+            }
+            ne = edge[ne].next;
+        }
+    }
+    cout<<"No";
+}
+
+int main(){
+    cin>>n>>m;
+    while(m--){
+        int a,b,c;
+        cin>>a>>b>>c;
+        add(a,b,c);
+    }
+    SFPA();
+    return 0;
+}
+
+//bellman_ford也是类似的思路
+struct Edge{
+    int a,b,dis;
+}edge[M];
+
+void bellman_ford(){
+    for(int i=1;i<n;++i){//松弛n-1次
+        for(int j=1;j<=m;++j){
+            if(d[edge[j].b]>d[edge[j].a]+edge[j].dis)
+                d[edge[j].b]=d[edge[j].a]+edge[j].dis;
+        }
+    }
+    //进行第n次松弛
+    for(int j=1;j<=m;++j){
+            if(d[edge[j].b]>d[edge[j].a]+edge[j].dis){//第n次能够松弛，则说明存在负环
+                cout<<"Yes";
+                return;
+            }
+    }
+    cout<<"No";
 }
 ```
