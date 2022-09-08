@@ -1121,3 +1121,62 @@ void dijkstra(int s,int n){
         cout<<d[i]<<" ";
 }
 ```
+
+dijkstra堆优化
+```c++
+/*
+ * c++的priority_queue是使用less<T>实现的最大堆
+ * 要实现最小堆的效果：在定义时显示指明使用greater<T>
+ * priority_queue<PII,vector<PII>,greater<PII> > q;
+ * 总之：实现A<B实现最大堆 实现A>B实现最小堆
+ * */
+
+#include <cstring>
+#include "iostream"
+#include "queue"
+using namespace std;
+const int SIZE = 1e6+10;
+int h[SIZE],d[SIZE],idx;
+bool v[SIZE];
+typedef pair<int,int> PII ;
+
+struct Edge{
+    int next ;
+    int ver;
+    int dis;
+}edge[SIZE];
+
+void add(int a,int b,int d){
+    edge[++idx].ver = b;
+    edge[idx].next = h[a];
+    h[a]=idx;
+    edge[idx].dis = d;
+}
+
+void dijkstra(int s,int n){
+    priority_queue<PII,vector<PII>,greater<PII>> q;
+    //less<T>构建最大堆，使用greater<T>构建最小堆
+    memset(d,0x3f,sizeof(d));
+    memset(v,0,sizeof(v));
+    d[s]=0;
+    q.push(PII(0,s));
+    while(q.size()){
+        PII t = q.top();
+        q.pop();
+        int cur = t.second;
+        int cur_dis = t.first;
+        if(v[cur])continue;
+        v[cur] = 1;
+        int ne = h[cur];
+        while(ne){
+            int next_ver = edge[ne].ver;
+            if(!v[next_ver]&&d[next_ver]>d[cur]+edge[ne].dis)//入队
+                d[next_ver] = d[cur]+edge[ne].dis,q.push(PII(d[next_ver],next_ver));
+            ne = edge[ne].next;
+        }
+    }
+    if(d[n]==0x3f3f3f3f)cout<<-1;
+    else cout<<d[n];
+}
+
+```
