@@ -1533,3 +1533,63 @@ int main(){
     krustal();
 }
 ```
+
+染色体法判断二分图
+```c++
+/*
+ * 使用深度优先搜索给每个点标记颜色，当两个相邻点颜色相同，则不是二分图
+ * */
+#include <cstring>
+#include "iostream"
+using namespace std;
+const int SIZE = 2e5+10;
+int h[SIZE],color[SIZE],n,m,idx;
+
+struct Edge{
+    int next;
+    int ver;
+}edge[SIZE];
+
+bool dfs(int pos,int c){//将pos点标记为颜色c 发生冲突返回fase 未发生冲突返回true
+    color[pos]=c;
+    int ne = h[pos];
+    while(ne){
+        if(color[edge[ne].ver]==-1&&dfs((edge[ne].ver),1-c)==false)return false;//后续节点发生冲突 返回false
+        else if(c == color[edge[ne].ver])return false;//当前节点与相邻节点颜色相同 返回false
+        ne = edge[ne].next;
+    }
+    return true;//当前及后续节点均未冲突 返回true
+}
+
+bool check(){
+    memset(color,-1,sizeof(color));
+    bool have_confict = false;
+    for(int i=1;i<=n;++i)//可能存在多个连通块
+        if(color[i]==-1&&dfs(i,1)==false)
+            return false;
+    return true;
+}
+
+void add(int a,int b){
+    edge[++idx].ver = b;
+    edge[idx].next = h[a];
+    h[a]=idx;
+}
+
+int main(){
+    cin>>n>>m;
+    while(m--){
+        int a,b;
+        cin>>a>>b;
+        add(a,b);
+        add(b,a);
+    }
+    if(check())cout<<"Yes";
+    else cout<<"No";
+}
+```
+
+匈牙利算法二分图匹配
+```c++
+
+```
