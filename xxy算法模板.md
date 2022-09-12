@@ -1591,5 +1591,62 @@ int main(){
 
 匈牙利算法二分图匹配
 ```c++
+/*
+ * 左侧n1个顶点 右侧n2个顶点 仅存储n1到n2的单向边
+ * match数组存储n2匹配的左侧点 v数组表示是否遍历过（遍历过意味着名花有主）
+ * 基本思路：在执行find的时候，如果碰到一个点被其他点匹配了，让匹配的那个点寻找一个新匹配
+ * 此时标记C意味着，该点一定会被A或者B匹配，而不能容忍第三个人插足
+ * */
+#include "iostream"
+#include "cstring"
+using namespace std;
+const int N = 510;
+const int M = 1e5+10;
+int n1,n2,m,idx,h[N],match[N];
+bool v[N];;
+struct Edge{
+    int ver;
+    int next;
+}edge[M];
 
+void add(int a,int b){
+    edge[++idx].ver =b;
+    edge[idx].next = h[a];
+    h[a]=idx;
+}
+
+bool find(int cur){
+    int ne = h[cur];
+    while(ne){
+        int pos = edge[ne].ver;
+        if(!v[pos]){
+            v[pos]=1;
+            if(match[pos]==0||find(match[pos])){
+                match[pos]=cur;
+                return true;//匹配成功
+            }
+        }
+        ne = edge[ne].next;
+    }
+    return false;//匹配失败
+}
+
+int count(){
+    int ans = 0;
+    for(int i=1;i<=n1;++i){
+        memset(v,0,sizeof(v));
+        if(find(i))ans++;
+    }
+    return ans;
+}
+
+int main(){
+    cin>>n1>>n2>>m;
+    while(m--){
+        int a,b;
+        cin>>a>>b;
+        add(a,b);
+    }
+    cout<<count();
+}
 ```
