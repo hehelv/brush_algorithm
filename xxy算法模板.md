@@ -1707,8 +1707,55 @@ cout<<f[V];
 
 多重背包
 ```c++
+/*
+ * 多重背包：给定一个体积为V的背包以及N种个数为s_i的物品，每种物品体积v_i，价值w_i，问能够装下的最大价值是多少？
+ * 1.确定状态变量：f[i][j]
+ * 2.确定转移方程：f[i][j]=max(f[i-1][j],f[i-1][j-k*v_i]+j*k*w_i)
+ * 3.确定边界条件：f[i][0]=0,f[0][j]=1
+ * 4.确定递推顺序：
+ *      朴素算法：三重循环，对每个物品每种体积每个数量进行转移 时间复杂度N*V*S
+ *      二进制优化：对于数量S的物品，将其分解为1+2+4+...+2^n+(s-2^(n+1)+1),这些数可以表示[0,S]中的任何一个数。优化之后进行01背包，时间复杂度N*V*logS
+ * */
+int N,V,v[SIZE],w[SIZE],cnt,f[SIZE];
+cin>>N>>V;
+for(int i=1;i<=N;++i){
+    int base_v,base_w,s;
+    cin>>base_v>>base_w>>s;
+    int t = 1;
+    while(s>t){//将S进行二进制优化
+        v[++cnt]=base_v*t;
+        w[cnt]=base_w*t;
+        s-=t;
+        t<<=1;
+    }
+    if(s>0){
+        v[++cnt]=base_v*s;
+        w[cnt]=base_w*s;
+    }
+}
+for(int i=1;i<=cnt;++i)
+    for(int j=V;j>=v[i];--j)
+        f[j]=max(f[j],f[j-v[i]]+w[i]);
+cout<<f[V];//输出最终答案
 ```
 
 分组背包
 ```c++
+/*
+ * 分组背包：给定一个容量为V的背包以及N组物品，每组物品中有s_i个物品，每个物品有其体积v_i_j和价值w_i_j,问背包能装下物品的最大价值？
+ * 1.状态变量：f[i][j],前i组物品体积为j能装得下的最大价值
+ * 2.转移方程：f[i][j]=max(f[i-1][j],f[i-1][j-v[k]]+w[k],...)
+ * 3.边界条件按:f[i][0]=f[0][j]=0
+ * 4.递推顺序：三重循环，每组每个体积每个物品（for i:0->N for j:0->V for k:0->s_i）
+ * */
+int N,V,v[110],w[110],f[110],cnt;
+cin>>N>>V;
+for(int i=1;i<=N;++i){
+    cin>>cnt;
+    for(int j=1;j<=cnt;++j)cin>>v[j]>>w[j];
+    for(int j=V;j>=0;j--)
+        for(int k=1;k<=cnt;++k)
+            if(j>=v[k])f[j]=max(f[j],f[j-v[k]]+w[k]);
+}
+cout<<f[V];
 ```
