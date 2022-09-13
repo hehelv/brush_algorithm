@@ -1,6 +1,6 @@
 算法模板基于[acwing](acwing.com)
 
-* quick_sort
+quick_sort
 ```C++
 void quick_sort(int *a,int l,int r){
 	int i=l,j=r,mid=a[(l+r)>>1];//i j mid三标志
@@ -14,7 +14,7 @@ void quick_sort(int *a,int l,int r){
 }
 ```
 
-* merge_sort
+merge_sort
 ```C++
 int b[BUF_SIZE];
 void merge_sort(int *a,int l, int r){
