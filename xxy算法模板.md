@@ -1918,3 +1918,73 @@ int main(){
     cout<<max(f[head][0],f[head][1]);
 }
 ```
+
+整数划分
+```c++
+/*
+ * 一个正整数 n 可以表示成若干个正整数之和，形如：n=n1+n2+…+nk，其中 n1≥n2≥…≥nk,k≥1。
+   我们将这样的一种表示称为正整数 n 的一种划分。
+   现在给定一个正整数 n，请你求出 n 共有多少种不同的划分方法。
+ * */
+/*
+ * 思路1：定义状态f[i][j]表示组成i的最大值为j时的划分方法
+ * 则有f[i][j]=sum(f[i-j][1~j])
+ * 初始化f[i][i]=1;
+ * 最终结果为sum(f[n][1~n])
+ * 时间复杂度n^3 勉强过
+ * */
+unsigned int f[1010][1010];
+unsigned int mod = 1e9+7;
+int n;
+scanf("%d",&n);
+for(int i=1;i<=n;++i)f[i][i]=1;
+for(int i=1;i<=n;++i)
+    for(int j=1;j<=i;++j)
+        for(int k=1;k<=j&&k<=i-j;++k)
+            f[i][j]=(f[i][j]+ f[i-j][k])%mod;
+unsigned int ans = 0;
+for(int i=1;i<=n;++i)
+    ans = (ans+f[n][i])%mod;
+printf("%u\n",ans);
+
+/*
+ * 思路二：视为完全背包计数
+ * f[i][j]=sum(f[i-1][j-k*i])
+ * 滚动数组优化 正序更新f[j]+=f[j-i];
+ * 初始化f[0]=1;
+ * */
+const int SIZE = 1010;
+unsigned int f[SIZE],mod = 1e9+7;
+int n;
+cin>>n;
+f[0]=1;
+for(int i=1;i<=n;++i)
+    for(int j=i;j<=n;++j)
+        f[j]=(f[j]+f[j-i])%mod;
+cout<<f[n];
+```
+
+区间选点
+```c++
+/*
+ * 给定 N 个闭区间 [ai,bi]，请你在数轴上选择尽量少的点，使得每个区间内至少包含一个选出的点。输出最少点数
+ * 贪心策略：将所有区间进行排序，维护最多区间的公共区间，直到交集为0，寻找下一个区间
+ * */
+typedef pair<int,int> PII;
+PII p[SIZE];
+int n;
+cin>>n;
+for(int i=1;i<=n;++i){
+    int a,b;
+    scanf("%d%d",&a,&b);
+    p[i]={a,b};
+}
+sort(p+1,p+n+1);
+int res = 0,r=p[1].second,pos=1;
+while(pos<=n){
+    while(++pos<=n&&p[pos].first<=r)r=min(r,p[pos].second);//存在交集 更新区间的右端点
+    r = p[pos].second;
+    res++;
+}
+cout<<res;
+```
