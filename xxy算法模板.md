@@ -1848,3 +1848,73 @@ for(int i=1;i<=n;++i)
     }
 cout<<f[n][m];
 ```
+
+石子合并
+```c++
+/*
+ * 区间DP经典题目 无优化O(n^2)
+ * 设置状态f[i][j]为合并[i,j]石子的最小值，f[i][i+k]=min(f[i][i+k],f[i][i+j]+f[i+j+1][i+k]+s[i+k]-s[i-1]),0<=j<k,s[i]为前缀和
+ * */
+int a[SIZE],f[SIZE][SIZE],s[SIZE],n;
+cin>>n;
+for(int i=1;i<=n;++i)cin>>a[i],s[i]=s[i-1]+a[i];
+memset(f,0x3f,sizeof(f));
+for(int i=1;i<=n;++i)f[i][i]=0;
+for(int k=1;k<n;++k)//间隔
+    for(int i=1;i+k<=n;++i)//从左往右遍历
+        for(int j=0;j<k;++j)
+            f[i][i+k]=min(f[i][i+k],f[i][i+j]+f[i+j+1][i+k]+s[i+k]-s[i-1]);
+cout<<f[1][n];
+```
+没有上司的舞会
+```c++
+/*
+ * 设计状态：f[i][0]表示i不去，i的子树幸福感最大值 f[i][1]表示i去，i子树的最大值
+ * 初始状态：f[i][0]=0,f[i][1]=happy_i，i去的基础快乐值，计算时加上子树的快乐值
+ * 转移方程：
+ *      f[i][0]+=max(f[each_son][0]+f[each_son][1]) 我不去 下属可去可不去
+ *      f[i][1]+=f[each_son][0] 我去 下属只能不去    
+ * 递归顺序：对根节点进行DFS ，入度为0的点为根节点
+ * */
+#include "iostream"
+using namespace std;
+const int SIZE = 6010;
+int h[SIZE],idx,val[SIZE],indegree[SIZE],f[SIZE][2];//f[i][0]表示i点不参会 f[i][1]表示i点参会
+struct Edge{
+    int next;
+    int ver;
+}edge[SIZE];
+
+void add(int a,int b){
+    edge[++idx].ver =b ;
+    edge[idx].next = h[a];
+    h[a]=idx;
+}
+
+void dfs(int pos){
+    int ne = h[pos];
+    while(ne){
+        int ne_pos = edge[ne].ver;
+        dfs(ne_pos);
+        f[pos][0]+=max(f[ne_pos][0],f[ne_pos][1]);//我不去 下属可去可不去
+        f[pos][1]+=f[ne_pos][0];//我去 下属只能不去
+        ne = edge[ne].next;
+    }
+}
+
+int main(){
+    int n;
+    cin>>n;
+    for(int i=1;i<=n;++i)cin>>val[i],f[i][1]=val[i];
+    for(int i=1;i<n;++i){
+        int a,b;
+        cin>>a>>b;
+        indegree[a]++;
+        add(b,a);
+    }
+    int head;
+    for(int i=1;i<=n;++i)if(indegree[i]==0)head = i;//入度为0的点为根节点
+    dfs(head);//从根节点进行深搜
+    cout<<max(f[head][0],f[head][1]);
+}
+```
