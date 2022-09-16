@@ -25,4 +25,4 @@
 > >
 > > [最小步数模型](搜索（刷题）/最小步数模型.md)
 
-###[xxy算法](./xxy_algorithm/README.md)
+### [xxy算法](./xxy_algorithm/README.md)
