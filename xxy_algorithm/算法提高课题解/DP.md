@@ -217,5 +217,66 @@
                     }
                 }
             }
+    8.庆功会：多重给背包问题，统一用单调队列优化来写，代码同上
+    9.混合背包问题
+        混合背包的处理方式同一般背包，对于不同的背包采用不同的策略，01背包逆序更新，完全背包顺序更新，多重背包单调队列优化
+        cin>>N>>V;
+            for(int i=1;i<=N;++i){
+                cin>>v>>w>>s;
+                if(s==-1){//01
+                    for(int j=V;j>=v;--j)f[j]=max(f[j],f[j-v]+w);
+                }
+                else if(s==0){//完全
+                    for(int j=v;j<=V;++j)f[j]=max(f[j],f[j-v]+w);
+                }else{//多重
+                    memcpy(g,f,sizeof(f));
+                    for(int j=0;j<v;++j){
+                        int hh=0,tt=-1;
+                        for(int k=j;k<=V;k+=v){
+                            while(hh<=tt&&q[hh]<k-v*s)hh++;
+                            if(hh<=tt)f[k]=max(f[k],g[q[hh]]+(k-q[hh])/v*w);
+                            while(hh<=tt&&g[k]>=g[q[tt]]+(k-q[tt])/v*w)tt--;
+                            q[++tt]=k;
+                        }
+                    }
+                }
+            }
+            cout<<f[V];
+    10.二维01背包，逆序更新
+        cin>>N>>V>>M;
+            for(int i=1;i<=N;++i){
+                cin>>v>>m>>w;
+                for(int j=V;j>=v;--j)
+                   for(int k=M;k>=m;--k)
+                    f[j][k]=max(f[j][k],f[j-v][k-m]+w);
+            }
+            cout<<f[V][M];
+    11.潜水员，二维背包问题，问满足条件的最小重量是多少。
+        由此引出01背包的三种情况
+            1.恰好装v：初始化f[i,i>0]=inf,f[0]=0,f[i]=max(f[i],f[i-v]+w)
+            2.至多装v:初始化f[all]=0,f[i]=max(f[i],f[i-v]+w)
+            3.至少装v：初始化f[0]=0,f[i,i>0]=inf,f[i]=max(f[i],f[max(0,i-v)]+w)
+                至少装v时，f[i]可以由f[j,j>=i-v]转移得到，此时i-j会小于0,取max(0,i-v)
+        cin>>n>>m>>k;
+            memset(f,0x3f,sizeof(f));
+            f[0][0]=0;
+            for(int i=1;i<=k;++i){
+                cin>>a>>b>>c;
+                for(int x=n;x>=0;--x)
+                    for(int y=m;y>=0;--y)
+                        f[x][y]=min(f[x][y],f[max(0,x-a)][max(0,y-b)]+c);
+            }
+            cout<<f[n][m];
+    12.机器分配：一共M台设备分给N家公司，每家公司获得获得不同数量的设备会产生不同的价值，求价值最大的方案（任意输出一个即可）。
+        同背包问题，f[i][j]表示前i家公司分配j台设备的最大值 
+            f[i][j]=max(f[i-1][j],f[i-1][j-k]+val[i][k])
+        输出方案的方法：在更新时记录前区，迭代输出。
+    13.开心的金明：普通01背包
+    14.有依赖的背包问题
+        
+    15.01背包计数问题：初始化f[i]=1;
+        转移分两种情况：大于f[i]=f[i-v]，等于f[i]+=f[i-v]
+        最终结果f[V]
+    16.
  * */
 ```
