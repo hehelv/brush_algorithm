@@ -273,10 +273,91 @@
         输出方案的方法：在更新时记录前区，迭代输出。
     13.开心的金明：普通01背包
     14.有依赖的背包问题
+        核心观点：f[u][j]的第一维代表的是节点，对应树形DP问题；第二维是体积，代表一维分组背包问题
+        f[u][j]：在”以uu为根节点的子树”中选，节点uu必选，所选体积不超过jj，的所有方案中，价值最大的方案的价值
+        计算f[u][j]时，先通过分组背包的方式计算在所有孩子节点中选的最大价值，最后再考虑节点uu。设节点uu有pp个孩子节点，那么就相当于有pp组物品。
+        物品组为1∼p1∼p，总共可用的体积为m−v[u]m−v[u]。现在我们眼中只有pp组物品，先不考虑父亲节点，只考虑计算这pp组物品的最大价值
+        根据分组背包的做法，首先枚举物品组，也就是节点uu的某个孩子sonson，对应代码的for (int i = h[u]; i != -1; i = ne[i])
+        其次枚举体积jj，也就是考虑在1∼son1∼son的物品组中选，所选体积不超过jj的最大价值。
+        最后枚举在物品组sonson中选体积为kk的物品，k∈[0,j]k∈[0,j]，因为1∼son1∼son的物品组一共选了不超过jj的体积
+        状态转移是f[u][j] = max(f[u][j], f[u][j - k] + f[son][k])。
+        f[u][j-k]: 由于体积jj是从大到小枚举，所以这里f[u][j-k]表示在1∼son−11∼son−1的物品组中选，体积不超过j−kj−k的方案的最大价值，这里省略了表示”在1∼son−11∼son−1的物品组中选”的维度，相当于一维的分组背包。而f[u][j]的第一维代表的不是背包问题，而是树形DP，第二维代表的才是分组背包。所以这道题是树形DP和背包的综合。
+        f[son][k]: 由于状态转移之前已经递归调用了dfs(son)，所以以sonson为根的子树已经计算好了。f[son][k]表示在以sonson为根的子树中选，所选体积不超过kk的最大价值
+        综上，f[u][j−k]+f[son][k]f[u][j−k]+f[son][k]的前半部分更趋向于分组背包，后半部分趋向于树形DP
+        计算完f[u][*]之后，f[u][*]代表的其实是在节点uu的所有子树1∼p1∼p中选的最大价值，没有计算uu的价值，所以需要加上最后的两个for循环
+        #include "iostream"
+        using namespace std;
+        const int SIZE = 110;
+        int h[SIZE],idx,N,V,f[SIZE][SIZE],w[SIZE],v[SIZE];
         
+        struct Edge{
+            int next;
+            int ver;
+        }edge[SIZE];
+        
+        void add(int a,int b){
+            edge[++idx].ver = b;
+            edge[idx].next  = h[a];
+            h[a]=idx;
+        }
+        
+        void dfs(int cur){
+            int ne = h[cur];
+            while(ne){//对于每个分组
+                int pos = edge[ne].ver;
+                dfs(pos);
+                for(int i=V-v[cur];i>=0;--i){//根节点必选，预留出根节点空间 对于每个体积，逆序是为了使用滚动数据节省空间
+                    for(int j=0;j<=i;++j)
+                        f[cur][i]=max(f[cur][i],f[cur][i-j]+f[pos][j]);//从分组中选择一个
+                }
+                ne = edge[ne].next;
+            }
+            for(int i=V;i>=v[cur];--i)f[cur][i]=f[cur][i-v[cur]]+w[cur];//增加根节点
+            for(int i=0;i<v[cur];++i)f[cur][i]=0;//根节点不能选的话，价值为0
+        }
+        int main(){
+            cin>>N>>V;
+            int root,p;
+            for(int i=1;i<=N;++i){
+                cin>>v[i]>>w[i]>>p;
+                if(p==-1)root =i;
+                else add(p,i);
+            }
+            dfs(root);
+            cout<<f[root][V];
+        }
     15.01背包计数问题：初始化f[i]=1;
         转移分两种情况：大于f[i]=f[i-v]，等于f[i]+=f[i-v]
         最终结果f[V]
-    16.
+    16.背包问题求具体方案：分为两种情况，任意一种方案和字典序最小方案
+        1.任意一种方案，不使用滚动数组优化
+            f[i][j]==f[i-1][j]表示不选第i个物品得到最优解
+            f[i][j]==f[i-1][j-v]+w表示选第i个物品得到最优解
+            这两种情况可以同时实现，递推从f[n][v]开始
+        2.字典序最小的方案：题目将物品从1到N进行编号，此时从N到1进行01背包。
+            f[i][j]==f[i-1][j]表示不选第i个物品的到最优解
+            f[i][j]==f[i-1][j-v]+w表示选第i个物品能得到最优解
+            而第i个物品只有选和不选两种选项，仅判断f[i][j]==f[i-1][j-v]+w即可，此时可以保证字典序最小
+            贪心策略：尽量选物品编号最小的，于是从1到N开始选（N到1递推），同时在选和不选都成立时，选择。
+            cin>>N>>V;
+                for(int i=1;i<=N;++i)
+                    cin>>v[i]>>w[i];
+                for(int i=N;i>=1;--i){
+                    for(int j=0;j<=V;++j) {
+                        //！！！！所有点都需要进行转移，不能用j=v[i]优化，否则一些状态不会保存
+                        f[i][j] = f[i + 1][j];
+                        if (j >=v[i])f[i][j] = max(f[i + 1][j], f[i + 1][j - v[i]] + w[i]);
+                    }
+                }
+                int pos=V,step=1;
+                while(step<=N){
+                    //pos>=v[step]，否则会错
+                    if(pos>=v[step]&&f[step][pos]==f[step+1][pos-v[step]]+w[step]){
+                        cout<<step<<" ";
+                        pos -=v[step];
+                    }
+                    step++;
+                }
+    17.
  * */
 ```
