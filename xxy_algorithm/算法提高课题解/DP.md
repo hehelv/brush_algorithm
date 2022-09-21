@@ -552,7 +552,65 @@ memset(f,0xcf,sizeof f);//-INF
             }
             cout<<f[N+1][0];
         }
-    3.
+    3.炮兵阵地：给定一块地，存在平原和山丘，炮兵只能部署在平原上，同时炮兵可以打到上下两格，问在不误伤的情况下最多能摆放多少炮兵。
+        思路：1表示摆放炮兵，0表示不摆放。由于炮兵能影响两列，因此状态表示为f[i][j][k]，j表示i-1列的状态，k表示第i列的状态
+        同时需要满足以下条件：
+            1.同一列炮兵距离>2
+            2.相邻两列炮兵不能相互攻击f[i][a][b]和f[i+1][b][c]应满足(a&b)==0,(a&c)==0,(b&c)==0
+            3.炮兵只能摆放在平原上，应满足(a|)base[i]==base[i]
+        初始化f[...][...][...]=0，起始列从2开始，ans=f[n+3][0][0]
+        同时空间有限，需要使用滚动数组优化，由于递推仅涉及相邻两个状态，采用取模优化
+        代码如下：
+        #include <ctime>
+        #include "iostream"
+        #include "cstring"
+        using namespace std;
+        const int SIZE = (1<<10)+10;
+        int f[4][SIZE][SIZE];
+        int g[4][SIZE][SIZE];
+        int base[110];
+        bool valid[SIZE];
+        int count[SIZE];
+        
+        int main(){
+            int n,m,size;
+            cin>>n>>m;
+            size  = 1<<m;
+            for(int i=2;i<n+2;++i)
+                for(int j=0;j<m;++j){
+                    char c;
+                    cin>>c;
+                    if(c=='P')base[i]+=(1<<(m-j-1));
+                }
+            for(int i=0;i<size;++i){
+                int cur=0,pre=-4,val =i;
+                bool invalid = false;
+                int cnt=0;
+                while(val){
+                    if((val&1)==1){//当前位为1
+                        if(cur-pre<=2)invalid = true;
+                        pre = cur;
+                        cnt++;
+                    }
+                    cur++;
+                    val>>=1;
+                }
+                if(!invalid)valid[i]=true,count[i]=cnt;
+            }
+            for(int i=2;i<=n+3;++i){
+                memset(&f[i%2][0][0],0,sizeof(int)*SIZE*SIZE);
+                int x = i%2,y=(i-1)%2;//滚动数组，空间优化
+                for(int a=0;a<size;++a)
+                    if(valid[a]&&(a|base[i-2])==base[i-2])
+                        for(int b=0;b<size;++b)
+                            if(valid[b]&&(a&b)==0&&(b|base[i-1])==base[i-1])
+                                for(int c=0;c<size;++c)
+                                    if(valid[c]&&(a&c)==0&&(b&c)==0&&(c|base[i])==base[i])
+                                        f[x][b][c]=max(f[x][b][c],f[y][a][b]+count[c]);
+            }
+            cout<<f[(n+3)%2][0][0]<<endl;
+            return 0;
+        }
  * */
 
 
