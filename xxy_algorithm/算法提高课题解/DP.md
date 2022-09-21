@@ -450,3 +450,110 @@ memset(f,0xcf,sizeof f);//-INF
             cout<<ans;
  * 
 ```
+
+状态压缩DP
+```c++
+/*
+    状态压缩DP就是通过使用位的0和1来表示状态，通过位运算减少计算量，通过位存储来节省存储空间的一种DP。状态压缩DP的特点：每个点仅有两种状态，通常以行或列的形式考虑。
+    1.小国王：给定N×N的棋盘和K个国王，每个国王相邻（8个）位置不能有另一个国王，问一共有多少种存储方式。
+        对于棋盘上的每个位置，仅有两种状态：有国王和无国王，将有国王的状态设置成1。同时，对于每一列的国王使用二进制数进行存储。一个列的国王应该满足不相邻，即二进制数的两个位不能相邻。同时对于相邻的列（分别用a和b表示其存储状态），应满足a&b==0，即相同位不能同时为1，同时，a|b应该为合法状态（国王不能相邻）。
+        状态表示：f[i][j][k]表示前i列，第i列状态为j，当前有k个国王的种数。
+        从i-1列到第i列，状态b转移到状态a：
+            if(valid[a]&&valid[b]&&valid[a|b]&&(a&b)==0&&k>=king[b])f[i][a][k]+=f[i-1][b][k-king[b]];
+        初始化f[0][0][0]=1,f[..][..][..]=0;表示第0列不放国王共0个国王的状态为一种合法状态，第0列的其他状态均不合法（其他状态都由此状态转移）
+        #include "iostream"
+        using namespace std;
+        const int SIZE = (1<<11)+10;
+        long long f[15][SIZE][110];
+        int king[SIZE];
+        bool valid[SIZE];
+        
+        int main(){
+            int n,k;
+            cin>>n>>k;
+            f[0][0][0]=1;
+            int size = 1<<n;
+            for(int i=0;i<size;++i){//
+                int cnt = 0;//国王个数
+                int pre = -2,cur = 0,val = i;
+                bool invalid = false;
+                while(val){
+                    if(val&1){
+                        cnt++;
+                        if(cur-pre<2)invalid = true;
+                        pre = cur;
+                    }
+                    cur++;
+                    val>>=1;
+                }
+                if(invalid)valid[i]=false;
+                else valid[i]=true,king[i]=cnt;
+            }
+            for(int i=1;i<=n+1;++i){//每一列
+                for(int a=0;a<size;++a){//当前列状态为a
+                    if(valid[a])
+                        for(int b=0;b<size;++b){//前一列状态为b
+                            if(valid[b]&&(a&b)==0&&valid[a|b]){//状态合法
+                                for(int num=0;num<=k;++num){//对于每个国王数
+                                    if(num>=king[a])f[i][a][num]+=f[i-1][b][num-king[a]];
+                                }
+                            }
+                        }
+                }
+            }
+            cout<<f[n+1][0][k];
+        }
+    2.玉米田：给定N×N的玉米田，玉米田中有一些地方不能种，同时所种玉米不能相邻，问有多少种种植方式。
+        玉米田只有种和不种两种状态。用状态dp实现。f[i][j]表示前i列且第i列的状态为j的方案数。
+        对于一列，不能存在相邻的1，预处理合法的状态；对于相邻的两列（状态分别为a和b），不能存在相邻的1，满足(a&b)==0;同时，玉米只能种在肥沃的土地上a|base[i]==base[i]；初始化f[0][0]=1,f[...][...]=0表示0列不种是一种合法状态；ans=f[N+1][0]，第N+1列不种东西的合法种数即为答案。
+        #include "iostream"
+        using namespace std;
+        int f[15][(1<<13)+10];
+        bool g[14][14];
+        int base[15];//存储每一列的值
+        bool valid[(1<<13)+10];
+        int mod = 1e8;
+        
+        int main(){
+            int N,M;
+            cin>>M>>N;
+            for(int i=1;i<=M;++i)
+                for(int j=1;j<=N;++j)
+                    cin>>g[i][j];
+            for(int i=1;i<=N;++i)
+                for(int j=1;j<=M;++j){
+                    base[i]+=g[j][i]<<(j-1);
+                }//ok
+            int size = 1<<M;
+            for(int i=0;i<size;++i){//保存每列是否为合法状态
+                int pre=-2,cur=0,val = i;
+                bool invalid = false;
+                while(val){
+                    if(val&1==1){
+                        if(cur-pre<2)invalid = true;
+                        pre = cur;
+                    }
+                    cur++;
+                    val>>=1;
+                }
+                if(invalid)valid[i]=false;
+                else valid[i]=true;
+            }
+            //for(int i=0;i<size;++i)cout<<valid[i]<<" ";//ok
+            f[0][0]=1;
+            for(int i=1;i<=N+1;++i){//每一列
+                for(int a=0;a<size;++a){//当前列的状态
+                    if(valid[a]&&(a|base[i])==base[i])//a为合法状态且与base不冲突
+                        for(int b=0;b<size;++b)
+                            if(valid[b]&&(a&b)==0)
+                                f[i][a]=(f[i][a]+f[i-1][b])%mod;
+                    
+                }
+            }
+            cout<<f[N+1][0];
+        }
+    3.
+ * */
+
+
+```
