@@ -2073,3 +2073,91 @@ cout<<res;
    解题思路：将区间按左端点进行排序，遍历每个区间，当区间能够放入某一组中时，将其放入该组，如果不能放入，则新增一组
  * */
 ```
+
+蒙德里安的梦想
+```c++
+/*
+    给定一个二维方格矩阵，求使用1×2的矩形能够填满的方式种数。
+    对于每个方格只会有两种状态：处于横矩形或竖矩形中。因此可以用0和1表示这两种状态。于是以这种方式定义一列的状态：1表示当前方格横放且向下一列伸出，0表示非伸出（上一列伸出或者竖放，总之不是伸出）
+    考虑相邻的两个列k和k+1，两个列不发生冲突仅k与k+1为1的部分不重合。在相邻两列不发生冲突的情况下，考虑剩余的空格，此时这些空格只能竖放（0只有两种状态，前一列伸出或者竖放，前一列伸出部分已排除，仅剩余竖放部分），对于竖放的方格，要求相邻方格数为2的倍数。
+        定义f[i][j]表示i列状态为j的方案数（j的每一位表示0和1），从f[i][...]向f[i+1][...]进行转移。满足上述条件即可转移，即
+            1.两者不重合f[i][a],f[i+1][b]满足a&b==0,
+            2.对于合并后相邻0为偶数（上和下都要考虑）。
+        初始化条件：f[0][0]=1,f[...][...]=0,ans = f[N][0];
+ * */
+#include "iostream"
+#include "cstring"
+using namespace std;
+const int SIZE = (1<<11)+10;
+long long f[15][SIZE];
+
+int main(){
+    int N,M;
+    while(cin>>N>>M,N|M){
+        memset(f,0,sizeof(f));
+        f[0][0]=1;
+        for(int i=1;i<=M;++i){//第i列向第i+1列递推
+            for(int a=0;a<(1<<N);++a){//第i列的每种情况
+                for(int b=0;b<(1<<N);++b){//第i+1列的每种情况
+                    if((a&b)==0){//不冲突
+                        int c = a|b;
+                        int pre = -1,cur = 0;
+                        bool error = false;
+                        while(c){
+                            if((c&1)==1){
+                                if((cur-pre+1)%2!=0){
+                                    error = true;//低位0的个数
+                                    break;
+                                }
+                                pre=cur;
+                            }
+                            cur++;
+                            c>>=1;
+                        }
+                        //高位0的个数
+                        if((N-cur)%2==1)error=1;
+                        if(!error)f[i][b]+=f[i-1][a];
+                    }
+                }
+            }
+        }
+        cout<<f[M][0]<<endl;
+    }
+}
+```
+
+最短Hamilton路径
+```c++
+/*
+    最短Hamilton路径定义：通过图中从0到n-1不重不漏地经过每个点恰好一次。
+    思路：定义状态f[i][j]表示经过集合i到达点j地最短路径，其中i用每个位表示经过的集合。考虑集合间的状态转移。
+        f[i][a]到f[i&&(1<<b)][b]转移:f[i&(1<<b)][b]=max(f[i][a]+g[a][b],f[i&(1<<b)][b])，初始化：f[1][0]=0,f[...][...]=inf;
+ * */
+#include "iostream"
+#include "cstring"
+using namespace std;
+const int SIZE = (1<<21)+10;
+int f[SIZE][21],g[21][21];
+
+int main(){
+    int n;
+    cin>>n;
+    memset(g,0x3f,sizeof g);
+    for(int i=0;i<n;++i)
+        for(int j=0;j<n;++j){
+            cin>>g[i][j];
+        }
+    memset(f,0x3f,sizeof f);
+    f[1][0]=0;
+    int size = 1<<n;
+    for(int i=1;i<size;++i){
+        for(int a=0;a<n;++a){
+            if(f[i][a]>=0x3f3f3f3f)continue;
+            for(int b=0;b<n;++b)
+                if(g[a][b]!=0x3f3f3f3f)
+                    f[i|(1<<b)][b]=min(f[i][a]+g[a][b],f[i|(1<<b)][b]);
+        }
+    }
+    cout<<f[(1<<n)-1][n-1];
+}
+```
