@@ -613,5 +613,142 @@ memset(f,0xcf,sizeof f);//-INF
         }
  * */
 
-
 ```
+
+区间DP
+```c++
+/*
+    区间DP经典题目：石子合并，环形石子合并。
+    1.环形石子合并：给定一堆石子环形排列，每次合并两堆石子需要消耗石子体积的能量，问将石子合并成一堆的最大消耗和最小消耗
+        思路：合并时考虑合并的每一种可能性，取其最小值或最大值。环形合并可以视为长度为2N的石子中，N堆石子进行合并的结果的最值。
+        #include "iostream"
+        #include "cstring"
+        using namespace std;
+        const int SIZE = 410;
+        int fl[SIZE][SIZE],fs[SIZE][SIZE],s[SIZE];
+        //fl存最大，fs存最小
+        int main(){
+            int n;
+            cin>>n;
+            memset(fs,0x3f,sizeof(fs));//初始化为inf
+            for(int i=0;i<=2*n;++i)fs[i][i]=0;//初始化
+            for(int i=1;i<=n;++i)cin>>s[i],s[i+n]=s[i];
+            for(int i=1;i<=2*n;++i)s[i]+=s[i-1];
+            //f[i][i+k]=max or min(f[i][i+j]+f[i+j+1][i+k]+s[i+k]-s[i-1])
+            for(int k=1;k<=n;++k)//区间长度
+                for(int i=1;i+k<=2*n;++i)//左端点
+                    for(int j=0;j<k;++j)//左区间长度
+                        fl[i][i+k]=max(fl[i][i+k],fl[i][i+j]+fl[i+j+1][i+k]+s[i+k]-s[i-1]),
+                        fs[i][i+k]=min(fs[i][i+k],fs[i][i+j]+fs[i+j+1][i+k]+s[i+k]-s[i-1]);
+            int ans_max = 0,ans_min=0x3f3f3f3f;
+            for(int i=1;i<=n;++i)
+                ans_min = min(ans_min,fs[i][i+n-1]),ans_max = max(ans_max,fl[i][i+n-1]);
+            cout<<ans_min<<endl<<ans_max<<endl;
+        }
+    2.能量项链：合并相邻两个元素会获得一定能量，问能够获得能量的最大值。
+        #include "iostream"
+        #include "algorithm"
+        using namespace std;
+        const int SIZE = 210;
+        typedef pair<int,int> PII;
+        PII a[SIZE];
+        int f[SIZE][SIZE];
+        
+        
+        int main(){
+            int n;
+            cin>>n;
+            for(int i=1;i<=n;++i){
+                cin>>a[i].first;
+                a[i+n-1].second = a[1+(i-2+2*n)%(2*n)].second = a[i+n].first=a[i].first;
+            }
+            for(int k=1;k<n;++k)//f[i][i+k]=max(f[i][i+k],f[i][i+j]+f[i+j+1][i+k]+a[i].first*a[i+j+1].first*a[i+k].second)
+                for(int i=1;i+k<=2*n;++i)
+                    for(int j=0;j<k;++j)
+                        f[i][i+k]=max(f[i][i+k],f[i][i+j]+f[i+j+1][i+k]+a[i].first*a[i+j+1].first*a[i+k].second);
+            int ans =0;
+            for(int i=1;i<=n;++i)
+                ans = max(ans,f[i][i+n-1]);
+            cout<<ans;
+        }
+    3.加分二叉树，给定一个二叉树的中序遍历，问该二叉树什么情况下分值最大。分值的计算方式：叶节点分数为自身权值，非叶节点分数为左子树分数*右子树分数+当前点权值。输出字典序最小的前序遍历。
+        最大权值计算方式，采用区间DP，从区间长度从小到大进行计算，得到最终结果。
+        最小前序遍历的计算方式：从前往后遍历，计算第一个最大值。使用pre[i][j]存储子树根节点。dfs输出前序遍历
+        #include "iostream"
+        using namespace std;
+        const int SIZE = 40;
+        int f[SIZE][SIZE],a[SIZE],pre[SIZE][SIZE];
+        void dfs(int l,int r){
+            if(l<=r){
+                cout<<pre[l][r]<<" ";
+                dfs(l,pre[l][r]-1);
+                dfs(pre[l][r]+1,r);
+            }
+        }
+        int main(){
+            int n;
+            cin>>n;
+            for(int i=1;i<=n;++i)
+                cin>>a[i];
+            for(int i=1;i<=n;++i)f[i][i]=a[i],pre[i][i]=i;
+            for(int k=1;k<n;++k)//i+k为右端点
+                for(int i=1;i+k<=n;++i)
+                    for(int j=0;j<=k;++j){
+                        int l,r;
+                        if(i+j-1<i)l=1;
+                        else l = f[i][i+j-1];
+                        if(i+j+1>i+k)r=1;
+                        else r = f[i+j+1][i+k];
+                        if(f[i][i+k]<l*r+a[i+j])f[i][i+k]=l*r+a[i+j],pre[i][i+k]=i+j;
+                    }
+            cout<<f[1][n]<<endl;
+            dfs(1,n);
+        }
+    4.凸多边形划分：对于一个凸多边形，将其划分成不相交的三角形，每个三角形的权值为三个顶点的乘积。问划分的最小权值是多少？
+        由于数据很大，需要用到高精度，可以自己实现高精度，也可以使用__int128
+        #include "iostream"
+        #include "cstring"
+        using namespace std;
+        const int SIZE = 55;
+        __int128 f[SIZE][SIZE];
+        __int128 a[SIZE];
+        inline __int128 read(){
+            __int128 x = 0, f = 1;
+            char ch = getchar();
+            while(ch < '0' || ch > '9'){
+                if(ch == '-')
+                    f = -1;
+                ch = getchar();
+            }
+            while(ch >= '0' && ch <= '9'){
+                x = x * 10 + ch - '0';
+                ch = getchar();
+            }
+            return x * f;
+        }
+        inline void print(__int128 x){
+            if(x < 0){
+                putchar('-');
+                x = -x;
+            }
+            if(x > 9)
+                print(x / 10);
+            putchar(x % 10 + '0');
+        }
+        const __int128 inf = 1e27;
+        int main(){
+            int n;
+            cin>>n;
+            for(int i=0;i<SIZE;++i)
+                for(int j=0;j<SIZE;++j)f[i][j]=inf;
+            for(int i=1;i<=n;++i)a[i]=read(),f[i][i+1]=0;
+            for(int k=2;k<n;++k)
+                for(int i=1;i+k<=n;++i)
+                    for(int j=1;j<k;++j)
+                        f[i][i+k]=min(f[i][i+k],f[i][i+j]+f[i+j][i+k]+a[i]*a[i+j]*a[i+k]);
+            print(f[1][n]);
+        }
+ * */
+```
+
+树形DP
