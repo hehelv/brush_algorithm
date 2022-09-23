@@ -752,3 +752,73 @@ memset(f,0xcf,sizeof f);//-INF
 ```
 
 树形DP
+```c++
+/*
+    树形DP：树形DP就是在树上进行的动态规划题，比如求树的重心，中心，最长路径等，通常需要通过dfs实现，通过对树与子树之间的关系进行状态转移。
+    1.树的最长路径：给定一棵树，求其中两点的最长路径。
+        思路：对于一棵树的最长路径，总是会经过一颗子树的根节点，且经过其两个不同的子树（如果存在两颗子树的话），因此对于树的每颗子树，维护一个经过当前根节点的最长路径，并维护一个当前根节点到叶子节点的最大值，用于父节点求其最长路径。答案即为所有子树的路径最大值。
+        #include "iostream"
+        #include "queue"
+        using  namespace std;
+        const int SIZE = 20010;
+        int h[SIZE],idx;
+        int f[SIZE];
+        bool v[SIZE];
+        
+        struct Edge{
+            int next;
+            int ver;
+            int dis;
+        }edge[SIZE];
+        
+        void add(int a,int b,int dis){
+            edge[++idx].ver  =b;
+            edge[idx].next = h[a];
+            h[a]=idx;
+            edge[idx].dis = dis;
+        }
+        
+        int dfs(int cur){//返回当前子树根节点到叶子节点的最长路径
+            v[cur]=1;
+            priority_queue<int> son_dis;
+            int ne = h[cur];
+            int pos_dis=0;
+            int max_son_dis = 0;
+            while(ne){
+                int pos = edge[ne].ver;
+                if(!v[pos]){
+                    int cur_dis = dfs(pos)+edge[ne].dis;//当前根节点经过子树的最长路径
+                    max_son_dis = max(max_son_dis,cur_dis);
+                    son_dis.push(cur_dis);
+                }
+                ne = edge[ne].next;
+            }
+            int max_cur = 0;
+            if(son_dis.size()){
+                max_cur+=son_dis.top();
+                son_dis.pop();
+            }
+            if(son_dis.size()){
+                max_cur+=son_dis.top();
+                son_dis.pop();
+            }//选择路径最长的两个子树，其和为当前子树的最长路径
+            f[cur]=max(f[cur],max_cur);
+            return max_son_dis;
+        }
+        
+        int main(){
+            int n;
+            cin>>n;
+            for(int i=1;i<=n;++i){
+                int a,b,dis;
+                cin>>a>>b>>dis;
+                add(a,b,dis);
+                add(b,a,dis);
+            }
+            dfs(1);
+            int ans = 0;
+            for(int i=1;i<=n;++i)ans = max(ans,f[i]);
+            cout<<ans;
+        }
+ * */
+```
