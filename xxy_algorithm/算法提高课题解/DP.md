@@ -820,5 +820,81 @@ memset(f,0xcf,sizeof f);//-INF
             for(int i=1;i<=n;++i)ans = max(ans,f[i]);
             cout<<ans;
         }
+    2.树的中心：当前点到其他点路径长度的最大值最小，该点就是树的中心。
+        思路：对于一个点，计算它到其他点最长距离的最小值分为两个方面，父节点部分和儿子节点部分，儿子节点部分通过一个dfs即可得到。父节点的最大值同样有两个来源，来自当前点兄弟节点，或者来自祖父节点，因此每个点需要维护一个子树最长路径和次长路径，用于计算经过父节点路径的最大值。
+        通过两次dfs实现：第一次dfs找到每个子树的最大值和次大值；第二次dfs计算到其他点距离最大值的最小值（深搜时向子节点传入父节点部分的最大值）
+        #include "iostream"
+        #include "cstring"
+        using namespace std;
+        const int SIZE = 20010;
+        int h[SIZE],idx,max_son[SIZE],second_son[SIZE],f[SIZE];
+        bool v[SIZE];
+        struct Edge{
+            int next;
+            int ver;
+            int dis;
+        }edge[SIZE];
+        
+        void dfs_1(int cur){//求max_son和second_son
+            v[cur]=1;
+            int ne = h[cur];
+            
+            while(ne){
+                int pos = edge[ne].ver;
+                if(!v[pos]){
+                    dfs_1(pos);
+                    int cur_path = max_son[pos]+edge[ne].dis;//当前路径长度
+                    if(cur_path>=second_son[cur]){//维护最大值和次大值
+                        if(cur_path>=max_son[cur])
+                            second_son[cur]=max_son[cur],max_son[cur]=cur_path;
+                        else
+                            second_son[cur]=cur_path;
+                    }
+                }
+                ne = edge[ne].next;
+            }
+        }
+        
+        void dfs_2(int cur,int f_max){//最终ans 求所有max的最大值
+            v[cur]=1;
+            int ne = h[cur];
+            f[cur]=f_max;
+            while(ne){
+                int pos = edge[ne].ver;
+                if(!v[pos]){
+                    if(max_son[cur]==max_son[pos]+edge[ne].dis){//当前为最长路径，传入次大值
+                        dfs_2(pos,edge[ne].dis+max(f_max,max(f_max,second_son[cur])));//传给儿子节点最大值
+                    }else//当前不是最长路径，传入最大值
+                        dfs_2(pos,max(f_max,edge[ne].dis+max(f_max,max_son[cur])));
+                    f[cur]=max(f[cur],max_son[pos]+edge[ne].dis);
+                }
+                ne=edge[ne].next;
+            }
+        }
+        
+        void add(int a,int b,int c){
+            edge[++idx].ver = b;
+            edge[idx].next  = h[a];
+            edge[idx].dis = c;
+            h[a]=idx;
+        }
+        
+        int main(){
+            int n;
+            cin>>n;
+            for(int i=1;i<n;++i){
+                int a,b,c;
+                cin>>a>>b>>c;
+                add(a,b,c);
+                add(b,a,c);
+            }
+            memset(v,0,sizeof(v));
+            dfs_1(1);
+            memset(v,0,sizeof(v));
+            dfs_2(1,0);
+            int ans = 0x3f3f3f3f;
+            for(int i=1;i<=n;++i)ans = min(ans,f[i]);
+            cout<<ans;
+        }
  * */
 ```
