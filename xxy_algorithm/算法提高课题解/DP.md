@@ -896,5 +896,60 @@ memset(f,0xcf,sizeof f);//-INF
             for(int i=1;i<=n;++i)ans = min(ans,f[i]);
             cout<<ans;
         }
+    3.二叉苹果树：有一棵二叉苹果树，如果树枝有分叉，一定是分两叉，即没有只有一个儿子的节点。
+            这棵树共 N 个节点，编号为 1 至 N，树根编号一定为 1。
+            我们用一根树枝两端连接的节点编号描述一根树枝的位置。
+            一棵苹果树的树枝太多了，需要剪枝。但是一些树枝上长有苹果，给定需要保留的树枝数量，求最多能留住多少苹果。
+            这里的保留是指最终与1号点连通。
+        思路：二叉苹果树是一个有依赖的背包问题，见背包问题的有依赖的背包问题。有以来的背包问题可以转化为分组背包问题。
+            具体方法为：腾出每个树跟的空间，每个子树的每种可能可以视为以每种体积为一类的分组背包，得到结果之后，再将根补上。
+            此处为了实现相同的效果，保留M个树枝可以视为保留M+1个根节点。同时将树枝的苹果数量视为点的权值，此时根的权值为0，所有点占用体积1.
+            ans=f[root][m+1]
+        #include "iostream"
+        using namespace std;
+        const int SIZE = 210;
+        int h[SIZE],idx,f[SIZE][SIZE],n,m;
+        bool v[SIZE];
+        struct Edge{
+            int next;
+            int ver;
+            int apple;
+        }edge[SIZE];
+        void add(int a,int b,int c){
+            edge[++idx].ver = b;
+            edge[idx].next = h[a];
+            edge[idx].apple =c;
+            h[a]=idx;
+        }
+        void dfs(int cur,int cur_apple){
+            v[cur]=1;
+            int ne=h[cur];
+            while(ne){
+                int pos= edge[ne].ver;
+                if(!v[pos]){
+                    dfs(pos,edge[ne].apple);
+                    for(int v_cur = m-1;v_cur>=0;--v_cur){//预留出根的空间1
+                        for(int v_son=0;v_son<=v_cur;++v_son){
+                            f[cur][v_cur]=max(f[cur][v_cur],f[cur][v_cur-v_son]+f[pos][v_son]);
+                        }
+                    }
+                }
+                ne = edge[ne].next;
+            }
+            for(int i=m;i>=1;--i)f[cur][i]=f[cur][i-1]+cur_apple;//添加根
+            f[cur][0]=0;//什么都不取，价值为0
+        }
+        int main(){
+            cin>>n>>m;
+            m++;//m个树枝+1个根节点
+            for(int i=1;i<n;++i){
+                int a,b,c;
+                cin>>a>>b>>c;
+                add(a,b,c);
+                add(b,a,c);
+            }
+            dfs(1,0);//从根开始搜索
+            cout<<f[1][m];
+        }
  * */
 ```
