@@ -951,5 +951,121 @@ memset(f,0xcf,sizeof f);//-INF
             dfs(1,0);//从根开始搜索
             cout<<f[1][m];
         }
+    4.战略游戏：给定一棵树，问最少多少个点可以覆盖所有边。
+        定义状态：f[i][j]表示以i为根的子树，包不包括i在内覆盖所有边需要的最少节点数。
+        f[i][0]=0,f[i][1]=1;
+        状态转移：f[i][0]=sum(f[son][1]),f[i][1]=sum(min(f[son][0],f[son][1]));
+        
+        #include "iostream"
+        #include "cstring"
+        using namespace std;
+        const int SIZE = 1510*2;
+        int h[SIZE],idx,f[SIZE][2];
+        int v[SIZE];
+        struct Edge{
+            int next;
+            int ver;
+        }edge[SIZE];
+        void add(int a,int b){
+            edge[++idx].ver = b;
+            edge[idx].next = h[a];
+            h[a]=idx;
+        }
+        void dfs(int cur){
+            v[cur]=1;
+            int ne = h[cur];
+            while(ne){
+                int pos = edge[ne].ver;
+                if(!v[pos]){
+                    dfs(pos);
+                    f[cur][0]+=f[pos][1];
+                    f[cur][1]+=min(f[pos][1],f[pos][0]);
+                }
+                ne = edge[ne].next;
+            }
+        }
+        int main(){
+            int n;
+            while(scanf("%d",&n)!=EOF){
+                idx = 0;
+                memset(f,0,sizeof(f));
+                memset(v,0,sizeof (v));
+                memset(h,0,sizeof(h));
+                for(int i=0;i<n;++i){
+                    f[i][0]=0,f[i][1]=1;
+                    int pos,num;
+                    scanf("%d:(%d)",&pos,&num);
+                    for(int j=1;j<=num;++j){
+                        int d;
+                        cin>>d;
+                        add(pos,d);
+                        add(d,pos);
+                    }
+                }
+                dfs(1);
+                cout<<min(f[1][0],f[1][1])<<endl;
+            }
+        }
+    5.皇宫看守：皇宫各个宫殿的分布，呈一棵树的形状，宫殿可视为树中结点，两个宫殿之间如果存在道路直接相连，则该道路视为树中的一条边。已知，在一个宫殿镇守的守卫不仅能够观察到本宫殿的状况，还能观察到与该宫殿直接存在道路相连的其他宫殿的状况。在看守全部宫殿的前提下，使得花费的经费最少。
+        状态设计：f[i][0]表示被父节点看到的最小花费，f[i][1]表示被子节点看到的最小花费，f[i][2]表示当前点安放守卫的最小花费
+        初始状态：f[i][2]=cost[i],f[i][0]=0,f[i][1]=inf;
+        状态转移：
+                f[i][0]=sum(min(f[son][1],f[son][2]))
+                f[i][2]=sum(min(f[son][0],f[son][1],f[son][2]))
+                f[i][1]=min(f[son_k][2]+sum(min(f[son_apart_k][2],f[son_apart_k][1])));//被至少一个儿子节点看到且总花费最小（被有监视的k号儿子节点看到，其他儿子可以有监视或者被其儿子节点看到）
+        #include "iostream"
+        #include "algorithm"
+        #include "cstring"
+        using namespace std;
+        const int SIZE = 1510*2;
+        int h[SIZE],idx,f[SIZE][3],cost[SIZE],indegree[SIZE];
+        int v[SIZE];
+        typedef pair<int,int> PII;//选-不选
+        PII arr[SIZE];
+        struct Edge{
+            int next;
+            int ver;
+        }edge[SIZE];
+        void add(int a,int b){
+            edge[++idx].ver = b;
+            edge[idx].next = h[a];
+            h[a]=idx;
+        }
+        void dfs(int cur){
+            int ne = h[cur];
+            while(ne){
+                int pos = edge[ne].ver;
+                dfs(pos);
+                f[cur][0]+=min(f[pos][1],f[pos][2]);
+                f[cur][2]+=min(min(f[pos][1],f[pos][2]),f[pos][0]);
+                ne = edge[ne].next;
+            }
+            f[cur][1]=0x3f3f3f3f;
+            ne = h[cur];
+            while(ne){
+                int pos = edge[ne].ver;
+                f[cur][1]=min(f[cur][1],f[cur][0]+f[pos][2]-min(f[pos][1],f[pos][2]));
+                ne = edge[ne].next;
+            }
+        }
+        int main(){
+            int n;
+            cin>>n;
+            for(int i=1;i<=n;++i){
+                int a,val,k,b;
+                cin>>a>>val;cost[a]=val;
+                f[a][2]=cost[a];
+                cin>>k;
+                for(int i=1;i<=k;++i){
+                    cin>>b;
+                    indegree[b]++;
+                    add(a,b);
+                }
+            }
+            int root = 0;
+            for(int i=1;i<=n;++i)if(indegree[i]==0)root = i;
+            dfs(root);
+            cout<<min(f[root][1],f[root][2])<<endl;
+        }
  * */
 ```
