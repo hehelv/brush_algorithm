@@ -2161,3 +2161,64 @@ int main(){
     cout<<f[(1<<n)-1][n-1];
 }
 ```
+
+数位DP
+```c++
+/*
+    计数问题：问区间[A,B]之间0~9每个数字出现的次数,B>=A>0.
+    数位DP的本质就是分类讨论，通常实现一个函数count(X)计算区间[1,X]之间的值，通过count(B)-count(A-1)得到最终结果
+    定义函数count(abcdefg,x)为区间[1,abcdefg]中x出现的次数，x=[0~9]
+        当x=1~9时，对于第四位x的出现次数,iiixjjj
+            1.iii=[000~abc-1]，数量为abc*1000;
+            2.iii=abc时：
+                2.1x<d,0
+                2.2x=d,[000~def],def+1
+                2.3x>d,[000~999],1000
+        当x=0时，对于第四位x的出现次数，仅1.不同，区间为[001~abc-1]，数量(abc-1)*1000
+ * */
+#include "iostream"
+#include "vector"
+using namespace std;
+int get_pre(vector<int>&v,int l,int r){
+    int ans = 0;
+    for(int i=r;i>=l;--i){
+        ans*=10;
+        ans+=v[i];
+    }
+    return ans;
+}
+int power10(int k){
+    int i=1;
+    while(k--)i*=10;
+    return i;
+}
+int count(int val,int x){
+    if(val==0)return 0;
+    vector<int> v ;
+    int k = val;
+    while(k){
+        v.push_back(k%10);
+        k/=10;
+    }
+    int res = 0;
+    for(int i = v.size()-1-!x;i>=0;--i){
+        if(i<v.size()-1){
+            res+=get_pre(v,i+1,v.size()-1)*power10(i);
+            if(!x)res-=power10(i);
+        }
+        if(v[i]>x)res+=power10(i);
+        else if(x==v[i])res+=get_pre(v,0,i-1)+1;
+    }
+    return res;
+}
+int main(){
+    int a,b;
+    while(cin>>a>>b,a||b){
+        if(a>b)swap(a,b);
+        for(int i=0;i<=9;++i)
+            cout<<count(b,i)-count(a-1,i)<<" ";
+        puts("");
+    }
+}
+```
+
