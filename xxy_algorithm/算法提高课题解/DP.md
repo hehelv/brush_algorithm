@@ -1073,6 +1073,243 @@ memset(f,0xcf,sizeof f);//-INF
 数位DP
 ```c++
 /*
-    
+    1.度的数量：求给定区间 [X,Y] 中满足下列条件的整数个数：这个数恰好等于 K 个互不相等的 B 的整数次幂之和。
+        即求B进制下位于xy之间且有且仅有k个1的数的个数。
+        思路：将区间[X,Y]转化为[0,Y]-[0,X-1]，题目可以转化为求小于某个二进制数的包含k个1的数的个数。
+            定义状态：f[i][j]表示前i位数字的所有种表示中，存在j个1的数的个数。
+                f[i][j]=f[i-1][j]f+f[i-1][j-1];//两种情况，第i位为1，个数为f[i-1][j-1],第i位为0，个数为f[i-1][j]
+            步骤一：将X-1和Y转化为符合条件的二进制格式:若某一位大于或等于2，将当前及后面所有位置1，表示全用不同阶组成的最大数
+            步骤二：使用数位DP记忆化搜索模板
+                int dfs(int pos,bool flag,int num){//pos为位置，flag表示是否为上界，num表示状态标志
+                    if(chech(pos,num)){//到达终点
+                        return ...
+                    }
+                    if(!flag&&f[pos][num]!=-1)return f[pos][num];//已经计算完成 返回
+                    int res = 0;
+                    int top = TOP;//依情况定 数字的上界
+                    if(flag) top = min(top,a[pos]);//新的上界
+                    for(int i=0;i<=top;++i){
+                        int val = dfs(new_pos,new_flag,new_num);
+                        //更新res 如res+=val;
+                    }
+                    if(!flag&&f[pos][num]==-1)f[pos][num]=res;//记忆化
+                    return res;
+                }
  * */
+    #include "iostream"
+    #include "cstring"
+    using namespace std;
+    int a[100],len,f[100][25];//f[i][j]表示前i位（包括i）共有j个1的种类数
+    int dfs(int pos,bool flag,int num){//错了
+        if(num<0)return 0;
+        if(pos==-1){
+            if(num==0)return 1;
+            else return 0;
+        }
+        if(!flag&&f[pos][num]!=-1)return f[pos][num];
+        int top=1;
+        int ans = 0;
+        if(flag)top=min(1,a[pos]);
+        for(int i=0;i<=top;++i){
+            int val=dfs(pos-1,(i==top)&&flag,num-i);
+            ans += val;
+        }
+        if(!flag&&f[pos][num]==-1)f[pos][num]=ans;
+        return ans;
+    }
+    void pre(int n,int b){
+        len = 0;
+        while(n){
+            if(n%b>=2){
+                for(int i=len;i>0;--i)
+                    a[i]=1;
+                a[len++]=1;
+            }
+            else
+                if (n%b==1)a[len++]=1;
+            else a[len++]=0;
+            n/=b;
+        }
+    }
+    int main(){
+        memset(f,-1,sizeof(f));
+        int x,y,k,b;
+        cin>>x>>y>>k>>b;
+        pre(y,b);
+        int val1 = dfs(len-1,1,k);
+        pre(x-1,b);
+        int val2 = dfs(len-1,1,k);
+        cout<<val1-val2<<endl;
+    }
+/*
+    2.科协里最近很流行数字游戏。某人命名了一种不降数，这种数字必须满足从左到右各位数字呈非下降关系，如 123，446。现在大家决定玩一个游戏，指定一个整数闭区间 [a,b]，问这个区间内有多少个不降数。
+    思路：不降数的性质和相邻数字大小有关系，因此定义两个状态f[i][j]表示最高位为j的i位数的所有不降数个数。
+        状态转移f[i][j]=sum(f[i-1],[k]),j<=k<=9;
+        初始状态:f[0][i]=i;->f[-1][...]=1;
+ * */
+    #include "iostream"
+    #include "cstring"
+    using namespace std;
+    int f[100][20],a[100],len;
+    
+    int dfs(int i,int j,int flag){
+        if(i==-1)return 1;//终点
+        if(!flag&&f[i][j]!=-1)return f[i][j];//使用记忆化结果
+        int res = 0;
+        int top = 9;
+        if(flag)top = min(top,a[i]);
+        for(int k=j;k<=top;++k)
+            res += dfs(i-1,k,(k==top)&&flag);//状态转移
+        if(!flag&&f[i][j]==-1)f[i][j]=res;//记忆化
+        return res;//返回结果
+    }
+    int main(){
+        memset(f,-1,sizeof f);
+        int x,y,val2,val1;
+        while(scanf("%d%d",&x,&y)!=EOF){
+            len = 0;
+            while(y){
+                a[len++]=y%10;
+                y/=10;
+            }
+            a[len]=0;
+            val2 = dfs(len,0,1);
+            len = 0;
+            x--;
+            while(x){
+                a[len++]=x%10;
+                x/=10;
+            }
+            a[len]=0;
+            val1 = dfs(len,0,1);
+            cout<<val2-val1<<endl;
+        }
+    }
+/*
+    3.Windy 定义了一种 Windy 数：不含前导零且相邻两个数字之差至少为 2 的正整数被称为 Windy 数。Windy 想知道，在 A 和 B 之间，包括 A 和 B，总共有多少个 Windy 数？
+    定义状态：f[i][j]表示i位数且第i+1位为j的windy数数量，且f[i][0]合法（即i+1位的0有效，i+1位之前存在其他非0数字）
+    状态转移：
+        1.j!=0  f[i][j]=sum(f[i][k]),abs(j-k)>=2;
+        2.j==0但是i+1前面不全为0（i不是最高位） f[i][j]=sum(f[i][k]),abs(j-k)>=2;
+        3.j==0但i为最高位 f[i][j]=sum(f[i][k]),k=1~9;//f[i][j]不合法
+ * */
+    #include "iostream"
+    #include "cstring"
+    using namespace std;
+    int f[100][50],a[100],len;
+    void pre(int val){
+        len  =0;
+        while(val){
+            a[len++]=val%10;
+            val/=10;
+        }
+        len--;
+    }
+    int dfs(int i,int j,bool flag,bool pre_zero){
+        if(i==-1)return 1;//
+        if(!flag&&!pre_zero&&f[i][j]!=-1)return f[i][j];//
+        int res = 0,top=9;
+        if(flag)top = min(top,a[i]);
+        for(int k=0;k<=top;++k){
+            if(pre_zero||abs(k-j)>=2)res += dfs(i-1,k,(k==top)&&flag,pre_zero&&k==0);//对应三种情况
+        }
+        if(!flag&&!pre_zero&&f[i][j]==-1)f[i][j]=res;
+        return res;
+    }
+    int main(){
+        memset(f,-1,sizeof f);
+        int x,y;
+        cin>>x>>y;
+        pre(y);
+        int val2 = dfs(len,0,1,1);
+        pre(x-1);
+        int val1 = dfs(len,0,1,1);
+        cout<<val2-val1<<endl;
+    }
+/*
+    4.数字游戏：由于科协里最近真的很流行数字游戏。某人又命名了一种取模数，这种数字必须满足各位数字之和 mod N 为 0。现在大家又要玩游戏了，指定一个整数闭区间 [a.b]，问这个区间内有多少个取模数。
+    思路：
+        状态设计f[i][j]表示i位数，取模后值为j的数的个数
+        状态转移:f[i][j]=sum(f[i-1][((j-k+mod)%mod+mod)%mod]),k=[0~9];
+        初始状态:f[-1][0]=1,f[-1][1~n-1]=0;
+ * */
+    #include "iostream"
+    #include "cstring"
+    using namespace std;
+    long long f[50][110],a[50],len,x,y,mod;
+    void pre(long long val){
+        len = 0;
+        while(val){
+            a[len++]=val%10;
+            val/=10;
+        }
+    }
+    long long dfs(long long i,long long j,bool flag){
+        if(i==-1){
+            if(j==0)return 1;
+            else return 0;
+        }
+        if(!flag&&f[i][j]!=-1)return f[i][j];
+        long long res = 0, top = 9;
+        if(flag)top = min(top,a[i]);
+        for(long long k=0;k<=top;++k){
+            res += dfs(i-1,((j+mod-k)%mod+mod)%mod,(k==top)&&flag);
+        }
+        if(!flag&&f[i][j]==-1)f[i][j]=res;
+        return res;
+    }
+    int main(){
+        while(scanf("%lld%lld%lld",&x,&y,&mod)!=EOF){
+            memset(f,-1,sizeof f);
+            pre(y);
+            long long val2 = dfs(len-1,0,1);
+            pre(x-1);
+            long long val1 = dfs(len-1,0,1);
+            cout<<val2-val1<<endl;
+        }
+    }
+/*
+    5.不要62,给定区间[A,B],问该区间中不存在连续62且不出现4的数的个数。
+        思路：
+            状态定义：f[i][j]表示所有i位数字中，前一位是否为6的满足条件的数的个数
+            状态转移：
+                f[i][1]=sum(f[i][k]),k!=2&&k!=4;
+                f[i][0]=sum(f[i][k]),k!=4;
+            初始状态：
+                f[-1][...]=1;
+ * */
+    #include "iostream"
+    #include "cstring"
+    using namespace std;
+    typedef  long long ll ;
+    ll f[15][3],a[15],len,x,y;
+    void pre(ll val){
+        len = 0;
+        while(val){
+            a[len++]=val%10;
+            val/=10;
+        }
+    }
+    ll dfs(ll i,bool has_6,bool has_top){
+        if(i==-1)return 1;
+        if(!has_top&&f[i][has_6]!=-1)return f[i][has_6];
+        ll res = 0,top = 9;
+        if(has_top)top = a[i];
+        for(int k=0;k<=top;++k){
+            if(k!=4&&((!has_6)||(k!=2)))res+=dfs(i-1,k==6,k==top&&has_top);
+        }
+        if(!has_top&&f[i][has_6]==-1)f[i][has_6]=res;
+        return res;
+    }
+    int main(){
+        while(cin>>x>>y,x||y){
+            memset(f,-1,sizeof f);
+            pre(y);
+            ll val2 = dfs(len-1,0,1);
+            pre(x-1);
+            ll val1=  dfs(len-1,0,1);
+            cout<<val2-val1<<endl;
+        }
+    }
+
 ```
