@@ -2174,7 +2174,8 @@ int main(){
                 2.1x<d,0
                 2.2x=d,[000~def],def+1
                 2.3x>d,[000~999],1000
-        当x=0时，对于第四位x的出现次数，仅1.不同，区间为[001~abc-1]，数量(abc-1)*1000
+        当x=0时，不考虑最高位，同时对于情况1需要保证0有效，取值范围为[001~abc-1];
+	
  * */
 #include "iostream"
 #include "vector"
@@ -2201,20 +2202,20 @@ int count(int val,int x){
         k/=10;
     }
     int res = 0;
-    for(int i = v.size()-1-!x;i>=0;--i){
-        if(i<v.size()-1){
+    for(int i = v.size()-1-!x;i>=0;--i){//!x表示当x为0时，不考虑最高位（最高位为0没有意义）
+        if(i<v.size()-1){//计算部分1
             res+=get_pre(v,i+1,v.size()-1)*power10(i);
-            if(!x)res-=power10(i);
+            if(!x)res-=power10(i);//x为0时，需要保证高位有效 取值为[00..1~abc...-1]，较普通数字少1
         }
-        if(v[i]>x)res+=power10(i);
-        else if(x==v[i])res+=get_pre(v,0,i-1)+1;
+        if(v[i]>x)res+=power10(i);//情况2.3
+        else if(x==v[i])res+=get_pre(v,0,i-1)+1;//情况2.2
     }
     return res;
 }
 int main(){
     int a,b;
     while(cin>>a>>b,a||b){
-        if(a>b)swap(a,b);
+        if(a>b)swap(a,b)
         for(int i=0;i<=9;++i)
             cout<<count(b,i)-count(a-1,i)<<" ";
         puts("");
